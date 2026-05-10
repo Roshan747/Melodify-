@@ -71,7 +71,13 @@ export async function getSongLyrics(title: string, artist: string): Promise<stri
   }
 }
 
-export async function getAuraChat(message: string, currentSong: Song | null, history: Song[] = [], userArtists: string[] = []): Promise<string> {
+export async function getAuraXChat(
+  message: string, 
+  chatHistory: { role: 'user' | 'auraX', text: string }[],
+  currentSong: Song | null, 
+  songHistory: Song[] = [], 
+  userArtists: string[] = []
+): Promise<string> {
   const songContext = currentSong 
     ? `The user is currently listening to "${currentSong.title}" by "${currentSong.artist}" from the album "${currentSong.album}".`
     : "No song is currently playing.";
@@ -80,26 +86,37 @@ export async function getAuraChat(message: string, currentSong: Song | null, his
     ? `The user's favorite artists are: ${userArtists.join(", ")}.`
     : "";
 
-  const historyContext = history.length > 0
-    ? `User's recent history includes: ${history.slice(0, 5).map(s => `"${s.title}" by ${s.artist}`).join(", ")}.`
+  const historyContext = songHistory.length > 0
+    ? `User's recent song history includes: ${songHistory.slice(0, 5).map(s => `"${s.title}" by ${s.artist}`).join(", ")}.`
     : "";
+
+  // Convert my chatHistory to Gemini format
+  const contents = [
+    ...chatHistory.map(m => ({
+      role: m.role === 'auraX' ? 'model' : 'user',
+      parts: [{ text: m.text }]
+    })),
+    { role: 'user', parts: [{ text: message }] }
+  ];
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: message,
+      model: "gemini-3.1-pro-preview",
+      contents: contents,
       config: {
-        systemInstruction: `You are Aura, an elite music assistant for the "Melodify" music app. 
+        systemInstruction: `You are AuraX, an elite music assistant for the "AuraX" music app. 
         You are sophisticated, knowledgeable, and passionate about music history, theory, and culture.
         Context: ${songContext} ${artistContext} ${historyContext}
         Keep your responses concise, engaging, and focused on the music. 
-        If asked for recommendations, use the context to provide high-quality suggestions.`
+        If asked for recommendations, use the context to provide high-quality suggestions.
+        You have access to Google Search for the latest music news, release dates, and artist information.`,
+        tools: [{ googleSearch: {} }]
       }
     });
 
     return response.text;
   } catch (error) {
-    console.error("Aura Chat Error:", error);
+    console.error("AuraX Chat Error:", error);
     return "I'm having trouble connecting to my musical database right now. Let's keep the music playing!";
   }
 }

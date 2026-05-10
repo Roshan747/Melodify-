@@ -42,13 +42,42 @@ export function useAudio(song: Song | null, volume: number, onEnded?: () => void
       return;
     }
 
-    if (a.src !== song.audioUrl) {
-      a.src = song.audioUrl;
-      setProgress(0);
-      if (isPlaying) {
-        a.play().catch(err => console.error("Playback failed on src change:", err));
+    const loadAudio = async () => {
+      let url = song.audioUrl;
+      
+      // Check Cache API for offline version
+      try {
+        const cache = await caches.open('melodify-audio-v1');
+        const cachedResponse = await cache.match(url);
+        if (cachedResponse) {
+          const blob = await cachedResponse.blob();
+          url = URL.createObjectURL(blob);
+        }
+      } catch (e) {
+        console.warn("Failed to check cache for audio:", e);
       }
-    }
+
+      if (a.src !== url) {
+        // Revoke old blob URL if it exists
+        if (a.src.startsWith('blob:')) {
+          URL.revokeObjectURL(a.src);
+        }
+        
+        a.src = url;
+        setProgress(0);
+        if (isPlaying) {
+          a.play().catch(err => console.error("Playback failed on src change:", err));
+        }
+      }
+    };
+
+    loadAudio();
+
+    return () => {
+      if (a.src.startsWith('blob:')) {
+        URL.revokeObjectURL(a.src);
+      }
+    };
   }, [song]);
 
   useEffect(() => {

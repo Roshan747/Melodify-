@@ -6,7 +6,7 @@ const Player = ReactPlayer as any;
 import { Song, Playlist } from './types';
 import { cn, formatTime } from './utils';
 import { useAudio } from './hooks/useAudio';
-import { getRecommendedSongs, getSongLyrics, getAuraChat, getSongMetadataFromUrl } from './services/gemini';
+import { getRecommendedSongs, getSongLyrics, getAuraXChat, getSongMetadataFromUrl } from './services/gemini';
 import { auth, signInWithGoogle, db, handleFirestoreError, OperationType, signInWithApple } from './lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser, signOut, updateProfile, updateEmail } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -18,7 +18,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Tum Hi Ho',
     artist: 'Arijit Singh',
     album: 'Aashiqui 2',
-    coverUrl: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/5/52/Aashiqui_2_%28soundtrack%29.jpg',
     duration: 262,
     audioUrl: 'https://www.youtube.com/watch?v=Umqb9KENgmk',
     releaseDate: '2013-04-26',
@@ -30,7 +30,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Jai Ho',
     artist: 'A.R. Rahman',
     album: 'Slumdog Millionaire',
-    coverUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/d/df/Slumdog_Millionaire_film_poster.jpg',
     duration: 319,
     audioUrl: 'https://www.youtube.com/watch?v=xwwAVRyN2KY',
     releaseDate: '2008-11-25',
@@ -42,7 +42,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Shake It Off',
     artist: 'Taylor Swift',
     album: '1989',
-    coverUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/f6/Taylor_Swift_-_1989.png',
     duration: 242,
     audioUrl: 'https://www.youtube.com/watch?v=nfWlot6h_JM',
     releaseDate: '2014-08-18',
@@ -54,7 +54,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Arabic Kuthu',
     artist: 'Anirudh Ravichander',
     album: 'Beast',
-    coverUrl: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/2/23/Arabic_Kuthu_Poster.jpg',
     duration: 280,
     audioUrl: 'https://www.youtube.com/watch?v=KUN5Uf9mObQ',
     releaseDate: '2022-02-14',
@@ -66,7 +66,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Starboy',
     artist: 'The Weeknd',
     album: 'Starboy',
-    coverUrl: 'https://images.unsplash.com/photo-1459749411177-042180ceea72?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/3/39/The_Weeknd_-_Starboy.png',
     duration: 230,
     audioUrl: 'https://www.youtube.com/watch?v=34Na4j8AVgA',
     releaseDate: '2016-09-21',
@@ -78,7 +78,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Hotline Bling',
     artist: 'Drake',
     album: 'Views',
-    coverUrl: 'https://images.unsplash.com/photo-1605648916319-cf082f7524a1?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/c/c9/Hotline_Bling_Drake.jpg',
     duration: 267,
     audioUrl: 'https://www.youtube.com/watch?v=uxpDa-c-4Mc',
     releaseDate: '2015-07-31',
@@ -90,7 +90,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Don\'t Start Now',
     artist: 'Dua Lipa',
     album: 'Future Nostalgia',
-    coverUrl: 'https://images.unsplash.com/photo-1514705115967-812ca42bc30a?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/f5/Dua_Lipa_-_Future_Nostalgia_%28Official_Album_Cover%29.png',
     duration: 183,
     audioUrl: 'https://www.youtube.com/watch?v=oygrmJFKYZY',
     releaseDate: '2019-10-31',
@@ -102,7 +102,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Proper Patola',
     artist: 'Diljit Dosanjh',
     album: 'Namaste England',
-    coverUrl: 'https://images.unsplash.com/photo-1520127870598-4a5eb5822826?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/a/ab/Proper_Patola_poster.jpg',
     duration: 178,
     audioUrl: 'https://www.youtube.com/watch?v=m7S88h7w6oM',
     releaseDate: '2018-10-03',
@@ -114,7 +114,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Pehli Nazar Mein',
     artist: 'Atif Aslam',
     album: 'Race',
-    coverUrl: 'https://images.unsplash.com/photo-1510915361894-db8b60106dfc?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/fc/Race_Album_Cover.jpg',
     duration: 312,
     audioUrl: 'https://www.youtube.com/watch?v=pAnFasY9Vv4',
     releaseDate: '2008-03-21',
@@ -126,7 +126,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Peaches',
     artist: 'Justin Bieber',
     album: 'Justice',
-    coverUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/0/08/Justin_Bieber_-_Justice.png',
     duration: 198,
     audioUrl: 'https://www.youtube.com/watch?v=tQ0yjYUFKAE',
     releaseDate: '2021-03-19',
@@ -138,7 +138,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Hymn For The Weekend',
     artist: 'Coldplay',
     album: 'A Head Full of Dreams',
-    coverUrl: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/3/3d/Coldplay_-_A_Head_Full_of_Dreams.png',
     duration: 258,
     audioUrl: 'https://www.youtube.com/watch?v=YykjpeuMNEk',
     releaseDate: '2016-01-25',
@@ -150,7 +150,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Kannaana Kanney',
     artist: 'Sid Sriram',
     album: 'Viswasam',
-    coverUrl: 'https://images.unsplash.com/photo-1511735111819-9a3f7709049c?auto=format&fit=crop&q=80&w=400&h=400',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/e/e0/Viswasam_poster.jpg',
     duration: 269,
     audioUrl: 'https://www.youtube.com/watch?v=7uS9vtoLgR0',
     releaseDate: '2019-01-10',
@@ -162,7 +162,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Na Chinna Pillave',
     artist: 'Hariharan',
     album: 'Youth',
-    coverUrl: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/9/91/Youth_2002_film_poster.jpg',
     duration: 335,
     audioUrl: 'https://www.youtube.com/watch?v=F03v5vJ_v0I',
     releaseDate: '2002-07-19',
@@ -174,7 +174,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Natu Natu',
     artist: 'Rahul Sipligunj, Kaala Bhairava',
     album: 'RRR',
-    coverUrl: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a1?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/2/23/RRR_Poster.jpg',
     duration: 215,
     audioUrl: 'https://www.youtube.com/watch?v=OsU0CGZoV8E',
     releaseDate: '2022-03-25',
@@ -186,7 +186,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Butta Bomma',
     artist: 'Armaan Malik',
     album: 'Ala Vaikunthapurramuloo',
-    coverUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/a/a2/Ala_Vaikunthapurramuloo.jpg',
     duration: 197,
     audioUrl: 'https://www.youtube.com/watch?v=2mDCVzL9w4U',
     releaseDate: '2020-02-24',
@@ -198,7 +198,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Samajavaragamana',
     artist: 'Sid Sriram',
     album: 'Ala Vaikunthapurramuloo',
-    coverUrl: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a1?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/a/a2/Ala_Vaikunthapurramuloo.jpg',
     duration: 221,
     audioUrl: 'https://www.youtube.com/watch?v=me6aoX0wXq8',
     releaseDate: '2019-09-27',
@@ -210,7 +210,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Oo Antava Mawa',
     artist: 'Indravathi Chauhan',
     album: 'Pushpa: The Rise',
-    coverUrl: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/7/75/Pushpa_The_Rise_film_poster.jpg',
     duration: 228,
     audioUrl: 'https://www.youtube.com/watch?v=R9reV97XvN8',
     releaseDate: '2021-12-10',
@@ -222,7 +222,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Srivalli',
     artist: 'Sid Sriram',
     album: 'Pushpa: The Rise',
-    coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/7/75/Pushpa_The_Rise_film_poster.jpg',
     duration: 224,
     audioUrl: 'https://www.youtube.com/watch?v=hcMzwMr77qI',
     releaseDate: '2021-10-13',
@@ -234,7 +234,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Bullet Song',
     artist: 'Silambarasan TR',
     album: 'The Warriorr',
-    coverUrl: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/5/50/The_Warriorr_poster.jpg',
     duration: 228,
     audioUrl: 'https://www.youtube.com/watch?v=yY9S7F27YXY',
     releaseDate: '2022-04-22',
@@ -246,7 +246,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Ramuloo Ramulaa',
     artist: 'Anurag Kulkarni',
     album: 'Ala Vaikunthapurramuloo',
-    coverUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/a/a2/Ala_Vaikunthapurramuloo.jpg',
     duration: 261,
     audioUrl: 'https://www.youtube.com/watch?v=grrpg_r1Nb8',
     releaseDate: '2019-10-25',
@@ -258,7 +258,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Vachindamma',
     artist: 'Sid Sriram',
     album: 'Geetha Govindam',
-    coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/d/dd/Geetha_Govindam_poster.jpg',
     duration: 251,
     audioUrl: 'https://www.youtube.com/watch?v=x7f_A_OQnZM',
     releaseDate: '2018-05-04',
@@ -270,7 +270,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Kalaavathi',
     artist: 'Sid Sriram',
     album: 'Sarkaru Vaari Paata',
-    coverUrl: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/1/10/Sarkaru_Vaari_Paata_film_poster.jpg',
     duration: 247,
     audioUrl: 'https://www.youtube.com/watch?v=sS_mC6D5g_c',
     releaseDate: '2022-02-13',
@@ -282,7 +282,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Inkem Inkem Kaavaale',
     artist: 'Sid Sriram',
     album: 'Geetha Govindam',
-    coverUrl: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a1?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/d/dd/Geetha_Govindam_poster.jpg',
     duration: 268,
     audioUrl: 'https://www.youtube.com/watch?v=8VnZ_Y-vH-w',
     releaseDate: '2018-07-10',
@@ -294,7 +294,7 @@ const MOCK_SONGS: Song[] = [
     title: 'Priyathama Priyathama',
     artist: 'Chinmayi Sripaada',
     album: 'Majili',
-    coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop',
+    coverUrl: 'https://upload.wikimedia.org/wikipedia/en/1/1a/Majili_film_poster.jpg',
     duration: 245,
     audioUrl: 'https://www.youtube.com/watch?v=68f_AFT4HkE',
     releaseDate: '2019-03-11',
@@ -452,13 +452,23 @@ export default function App() {
       return;
     }
 
-    const idx = currentQueue.findIndex(s => s.id === currentSong.id);
-    if (idx < currentQueue.length - 1) {
-      setCurrentSong(currentQueue[idx + 1]);
+    const availableQueue = !isOnline 
+      ? currentQueue.filter(s => downloadedSongs.has(s.id))
+      : currentQueue;
+
+    if (availableQueue.length === 0) {
+      setIsPlaying(false);
+      return;
+    }
+
+    const currentIdxInAvailable = availableQueue.findIndex(s => s.id === currentSong.id);
+    
+    if (currentIdxInAvailable !== -1 && currentIdxInAvailable < availableQueue.length - 1) {
+      setCurrentSong(availableQueue[currentIdxInAvailable + 1]);
     } else if (isShuffleOn) {
-      setCurrentSong(currentQueue[Math.floor(Math.random() * currentQueue.length)]);
+      setCurrentSong(availableQueue[Math.floor(Math.random() * availableQueue.length)]);
     } else if (repeatMode === 'all' || isManual) {
-      setCurrentSong(currentQueue[0]);
+      setCurrentSong(availableQueue[0]);
     } else {
       setIsPlaying(false);
       return;
@@ -468,11 +478,19 @@ export default function App() {
 
   const playPrevious = () => {
     if (!currentSong) return;
-    const idx = currentQueue.findIndex(s => s.id === currentSong.id);
-    if (idx > 0) {
-      setCurrentSong(currentQueue[idx - 1]);
+    
+    const availableQueue = !isOnline 
+      ? currentQueue.filter(s => downloadedSongs.has(s.id))
+      : currentQueue;
+
+    if (availableQueue.length === 0) return;
+
+    const currentIdxInAvailable = availableQueue.findIndex(s => s.id === currentSong.id);
+    
+    if (currentIdxInAvailable > 0) {
+      setCurrentSong(availableQueue[currentIdxInAvailable - 1]);
     } else {
-      setCurrentSong(currentQueue[currentQueue.length - 1]);
+      setCurrentSong(availableQueue[availableQueue.length - 1]);
     }
     setIsPlaying(true);
   };
@@ -611,19 +629,41 @@ export default function App() {
     localStorage.setItem('melodify_downloaded', JSON.stringify(Array.from(downloadedSongs)));
   }, [downloadedSongs]);
 
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const handleDownload = async (song: Song) => {
     if (downloadedSongs.has(song.id) || downloadingSongs[song.id] !== undefined) return;
 
-    // For external songs or if fetch fails, use simulation
-    const startSimulation = (id: string) => {
-      setDownloadingSongs(prev => ({ ...prev, [id]: 0 }));
+    setDownloadingSongs(prev => ({ ...prev, [song.id]: 0 }));
+
+    // Simulation for UI feedback
+    const startSimulation = async (id: string, actualDownload: boolean = false) => {
       let progress = 0;
       const interval = setInterval(() => {
-        progress += Math.random() * 30;
-        if (progress >= 100) {
+        progress += Math.random() * 15;
+        if (progress >= 95 && actualDownload) {
+            // Wait for actual download to finish the last 5%
+            setDownloadingSongs(prev => ({ ...prev, [id]: 95 }));
+        } else if (progress >= 100) {
           progress = 100;
           clearInterval(interval);
           setDownloadedSongs(prev => new Set(prev).add(id));
+          // Store full song metadata for offline access
+          const offlineMeta = JSON.parse(localStorage.getItem('melodify_offline_metadata') || '{}');
+          offlineMeta[id] = song;
+          localStorage.setItem('melodify_offline_metadata', JSON.stringify(offlineMeta));
+
           setDownloadingSongs(prev => {
             const next = { ...prev };
             delete next[id];
@@ -632,57 +672,41 @@ export default function App() {
         } else {
           setDownloadingSongs(prev => ({ ...prev, [id]: progress }));
         }
-      }, 400);
+      }, 300);
+      return interval;
     };
 
-    if (song.isExternal) {
+    if (song.isExternal && (song.audioUrl.includes('youtube.com') || song.audioUrl.includes('youtu.be'))) {
       startSimulation(song.id);
       return;
     }
 
     try {
-      setDownloadingSongs(prev => ({ ...prev, [song.id]: 0 }));
-      const response = await fetch(song.audioUrl);
+      const simInterval = await startSimulation(song.id, true);
+      
+      const response = await fetch(song.audioUrl, { mode: 'cors' });
       if (!response.ok) throw new Error("Fetch failed");
       
-      const contentLength = response.headers.get('content-length');
-      const total = contentLength ? parseInt(contentLength, 10) : 0;
-      let loaded = 0;
+      // Store in Cache API for true offline playback
+      const cache = await caches.open('melodify-audio-v1');
+      await cache.put(song.audioUrl, response.clone());
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No reader");
-
-      const chunks = [];
-      while(true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        chunks.push(value);
-        loaded += value.length;
-        if (total) {
-          setDownloadingSongs(prev => ({ ...prev, [song.id]: (loaded / total) * 100 }));
-        }
-      }
-
-      // Actually trigger a browser download
-      const blob = new Blob(chunks);
-      const blobUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = `${song.title} - ${song.artist}.mp3`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(a);
-
+      clearInterval(simInterval);
       setDownloadedSongs(prev => new Set(prev).add(song.id));
+      
+      // Store metadata
+      const offlineMeta = JSON.parse(localStorage.getItem('melodify_offline_metadata') || '{}');
+      offlineMeta[song.id] = song;
+      localStorage.setItem('melodify_offline_metadata', JSON.stringify(offlineMeta));
+
       setDownloadingSongs(prev => {
         const next = { ...prev };
         delete next[song.id];
         return next;
       });
     } catch (error) {
-      console.warn("Real download failed, falling back to simulation:", error);
-      startSimulation(song.id);
+      console.warn("Real download failed (possibly CORS), using local metadata storage only:", error);
+      // We already started simulation, it will finish and mark as "downloaded" (metadata only)
     }
   };
 
@@ -707,7 +731,7 @@ export default function App() {
     return saved ? JSON.parse(saved) : [
       { name: 'Flat', levels: { bass: 50, mid: 50, treble: 50, gain: 50 } },
       { name: 'Bass Boost', levels: { bass: 85, mid: 45, treble: 40, gain: 55 } },
-      { name: 'Aura Crystal', levels: { bass: 40, mid: 60, treble: 90, gain: 50 } }
+      { name: 'AuraX Crystal', levels: { bass: 40, mid: 60, treble: 90, gain: 50 } }
     ];
   });
 
@@ -756,9 +780,18 @@ export default function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [offlineMetadata, setOfflineMetadata] = useState<Record<string, Song>>(() => {
+    const saved = localStorage.getItem('melodify_offline_metadata');
+    return saved ? JSON.parse(saved) : {};
+  });
+
   useEffect(() => {
     localStorage.setItem('melodify_imported', JSON.stringify(importedSongs));
   }, [importedSongs]);
+
+  useEffect(() => {
+    localStorage.setItem('melodify_offline_metadata', JSON.stringify(offlineMetadata));
+  }, [offlineMetadata]);
 
   const handleImport = (e: React.FormEvent) => {
     e.preventDefault();
@@ -791,7 +824,7 @@ export default function App() {
     });
   };
   
-  const allSongs = [...MOCK_SONGS, ...aiGeneratedSongs, ...importedSongs];
+  const allSongs = [...MOCK_SONGS, ...aiGeneratedSongs, ...importedSongs, ...Object.values(offlineMetadata).filter(os => !MOCK_SONGS.find(ms => ms.id === os.id) && !importedSongs.find(is => is.id === os.id))];
   const favoriteSongs = allSongs.filter(s => favorites.has(s.id));
 
   useEffect(() => {
@@ -907,25 +940,25 @@ export default function App() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const [showAura, setShowAura] = useState(false);
-  const [auraMessages, setAuraMessages] = useState<{ role: 'user' | 'aura', text: string }[]>([
-    { role: 'aura', text: "Hello! I'm Aura, your musical co-pilot. I can tell you about the current track, suggest what to listen to next, or just talk music. What's on your mind?" }
+  const [showAuraX, setShowAuraX] = useState(false);
+  const [auraXMessages, setAuraXMessages] = useState<{ role: 'user' | 'auraX', text: string }[]>([
+    { role: 'auraX', text: "Hello! I'm AuraX, your musical co-pilot. I can tell you about the current track, suggest what to listen to next, or just talk music. What's on your mind?" }
   ]);
-  const [auraInput, setAuraInput] = useState("");
-  const [isAuraLoading, setIsAuraLoading] = useState(false);
+  const [auraXInput, setAuraXInput] = useState("");
+  const [isAuraXLoading, setIsAuraXLoading] = useState(false);
 
-  const handleAuraSend = async (e?: React.FormEvent) => {
+  const handleAuraXSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!auraInput.trim() || isAuraLoading) return;
+    if (!auraXInput.trim() || isAuraXLoading) return;
 
-    const userMsg = auraInput.trim();
-    setAuraInput("");
-    setAuraMessages(prev => [...prev, { role: 'user', text: userMsg }]);
-    setIsAuraLoading(true);
+    const userMsg = auraXInput.trim();
+    setAuraXInput("");
+    setAuraXMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setIsAuraXLoading(true);
 
-    const response = await getAuraChat(userMsg, currentSong, history, selectedArtists);
-    setAuraMessages(prev => [...prev, { role: 'aura', text: response }]);
-    setIsAuraLoading(false);
+    const response = await getAuraXChat(userMsg, auraXMessages, currentSong, history, selectedArtists);
+    setAuraXMessages(prev => [...prev, { role: 'auraX', text: response }]);
+    setIsAuraXLoading(false);
   };
 
   useEffect(() => {
@@ -1005,7 +1038,7 @@ export default function App() {
       setViewingSong(null);
       setShowDownloaded(false);
       setShowAiGenerator(false);
-      setShowAura(false);
+      setShowAuraX(false);
       setShowLyricsQueue(false);
       setShowViewingLyrics(false);
       setShowLyrics(false);
@@ -1026,7 +1059,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="h-screen bg-[#050505] flex items-center justify-center">
-        <Loader2 className="w-10 h-10 text-[#1DB954] animate-spin" />
+        <Loader2 className="w-10 h-10 text-[#FF0000] animate-spin" />
       </div>
     );
   }
@@ -1036,7 +1069,7 @@ export default function App() {
       <div className="h-screen bg-[#050505] flex flex-col items-center justify-center relative overflow-hidden">
         {/* Atmospheric background */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#1DB954]/20 rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF0000]/20 rounded-full blur-[120px] animate-pulse" />
           <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/20 rounded-full blur-[120px] animate-pulse delay-1000" />
         </div>
 
@@ -1046,15 +1079,15 @@ export default function App() {
           className="z-10 text-center px-6"
         >
           <div className="flex items-center justify-center mb-8">
-            <div className="w-16 h-16 bg-[#1DB954] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(29,185,84,0.3)]">
+            <div className="w-16 h-16 bg-[#FF0000] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,0,0,0.3)]">
               <Play className="w-8 h-8 text-black fill-current ml-1" />
             </div>
           </div>
           
-          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">Melodify</h1>
-          <p className="text-[#1DB954] text-[10px] font-black uppercase tracking-[0.3em] mb-6">Founded by Roshan</p>
+          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">AuraX</h1>
+          <p className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-6">Founded by Roshan.R.Soyam</p>
           <p className="text-zinc-400 text-lg mb-12 max-w-md mx-auto">
-            Your personal AI-powered music companion. Listen, discover, and create with the power of Aura.
+            Your personal AI-powered music companion. Listen, discover, and create with the power of AuraX.
           </p>
 
           <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
@@ -1105,7 +1138,7 @@ export default function App() {
 
   if (!onboardingComplete) {
     return (
-      <div className="h-screen bg-[#050505] flex flex-col items-center justify-center relative overflow-hidden p-6 selection:bg-[#1DB954]/30">
+      <div className="h-screen bg-[#050505] flex flex-col items-center justify-center relative overflow-hidden p-6 selection:bg-[#FF0000]/30">
         <div className="absolute top-8 right-8 z-20">
           <button 
             onClick={handleSaveArtists}
@@ -1122,19 +1155,19 @@ export default function App() {
           className="z-10 text-center max-w-4xl w-full"
         >
           <div className="flex items-center justify-center mb-8">
-            <div className="p-4 bg-[#1DB954]/10 rounded-full">
-              <Sparkles className="w-12 h-12 text-[#1DB954] animate-pulse" />
+            <div className="p-4 bg-[#FF0000]/10 rounded-full">
+              <Sparkles className="w-12 h-12 text-[#FF0000] animate-pulse" />
             </div>
           </div>
           
           <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">Choose your favorite artists</h1>
           <p className="text-zinc-400 text-lg mb-4 max-w-md mx-auto">
-            Aura uses this to understand your vibe and recommend the perfect tracks for you.
+            AuraX uses this to understand your vibe and recommend the perfect tracks for you.
           </p>
           <div className="mb-12">
             <p className={cn(
                 "text-xs font-bold uppercase tracking-[0.2em] transition-colors",
-                selectedArtists.length >= 3 ? "text-[#1DB954]" : "text-orange-500"
+                selectedArtists.length >= 3 ? "text-[#FF0000]" : "text-orange-500"
             )}>
                 {selectedArtists.length < 3 
                     ? `Select at least ${3 - selectedArtists.length} more artist${3 - selectedArtists.length === 1 ? '' : 's'}` 
@@ -1144,7 +1177,7 @@ export default function App() {
                 <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min((selectedArtists.length / 3) * 100, 100)}%` }}
-                    className="h-full bg-[#1DB954]"
+                    className="h-full bg-[#FF0000]"
                 />
             </div>
           </div>
@@ -1159,7 +1192,7 @@ export default function App() {
                 className={cn(
                   "flex flex-col items-center gap-4 p-4 rounded-3xl transition-all duration-300 border-2 group relative",
                   selectedArtists.includes(artist.name) 
-                    ? "bg-[#1DB954]/10 border-[#1DB954] shadow-[0_0_30px_rgba(29,185,84,0.15)]" 
+                    ? "bg-[#FF0000]/10 border-[#FF0000] shadow-[0_0_30px_rgba(255,0,0,0.15)]" 
                     : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
                 )}
               >
@@ -1173,17 +1206,17 @@ export default function App() {
                     <motion.div 
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 bg-[#1DB954] p-1.5 rounded-full text-black shadow-lg"
+                      className="absolute -top-1 -right-1 bg-[#FF0000] p-1.5 rounded-full text-black shadow-lg"
                     >
                       <CheckCircle2 className="w-4 h-4 stroke-[3]" />
                     </motion.div>
                   )}
-                  <div className="absolute inset-0 rounded-full border-4 border-[#1DB954] opacity-0 group-hover:opacity-20 transition-opacity scale-110" />
+                  <div className="absolute inset-0 rounded-full border-4 border-[#FF0000] opacity-0 group-hover:opacity-20 transition-opacity scale-110" />
                 </div>
                 <div className="text-center w-full">
                   <p className={cn(
                     "font-black text-sm transition-colors tracking-tight",
-                    selectedArtists.includes(artist.name) ? "text-[#1DB954]" : "text-white"
+                    selectedArtists.includes(artist.name) ? "text-[#FF0000]" : "text-white"
                   )}>{artist.name}</p>
                   <p className="text-[10px] uppercase font-black tracking-widest text-zinc-500 mt-1 whitespace-nowrap overflow-hidden text-ellipsis px-2">
                     {artist.roles.join(" • ")}
@@ -1205,7 +1238,7 @@ export default function App() {
         </motion.div>
 
         {/* Decorative background blur */}
-        <div className="absolute top-1/2 left-0 w-[50%] h-[50%] bg-[#1DB954]/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        <div className="absolute top-1/2 left-0 w-[50%] h-[50%] bg-[#FF0000]/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 animate-pulse" />
         <div className="absolute bottom-0 right-0 w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[120px] translate-x-1/4 translate-y-1/4 animate-pulse delay-1000" />
 
         {/* Lower Right Continue Button */}
@@ -1213,7 +1246,7 @@ export default function App() {
           <button 
             onClick={handleSaveArtists}
             disabled={selectedArtists.length < 3}
-            className="group flex items-center gap-2 bg-[#1DB954] text-black font-bold py-3 px-6 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_15px_rgba(29,185,84,0.3)] disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed uppercase text-xs tracking-widest"
+            className="group flex items-center gap-2 bg-[#FF0000] text-black font-bold py-3 px-6 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_15px_rgba(255,0,0,0.3)] disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed uppercase text-xs tracking-widest"
           >
             Continue
             <CheckCircle2 className="w-4 h-4" />
@@ -1224,7 +1257,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden selection:bg-[#1DB954]/30">
+    <div className="flex h-screen bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden selection:bg-[#FF0000]/30">
       {/* ReactPlayer for YouTube Imports */}
       <div 
         className="fixed top-0 left-0 w-[1px] h-[1px] opacity-[0.001] pointer-events-none -z-[100] bg-black overflow-hidden"
@@ -1249,7 +1282,15 @@ export default function App() {
           playsinline
           pip={false}
           volume={volume}
-          onReady={() => console.log("External Player Ready")}
+          onReady={() => {
+            console.log("External Player Ready");
+            if (playerRef.current && currentSong?.isExternal && currentSong.duration === 0) {
+                const d = playerRef.current.getDuration();
+                if (d > 0) {
+                    setImportedSongs(prev => prev.map(s => s.id === (currentSong?.id || "") ? { ...s, duration: d } : s));
+                }
+            }
+          }}
           onPlay={() => {
               if (currentSong?.isExternal && !isPlaying) setIsPlaying(true);
           }}
@@ -1257,15 +1298,18 @@ export default function App() {
               if (currentSong?.isExternal && isPlaying) setIsPlaying(false);
           }}
           onProgress={(state: any) => {
-              if (currentSong?.isExternal) internalSeek(state.playedSeconds);
+              if (currentSong?.isExternal) {
+                  internalSeek(state.playedSeconds);
+                  if (currentSong.duration === 0 && playerRef.current) {
+                      const d = playerRef.current.getDuration();
+                      if (d > 0) {
+                          setImportedSongs(prev => prev.map(s => s.id === (currentSong?.id || "") ? { ...s, duration: d } : s));
+                      }
+                  }
+              }
           }}
           onEnded={() => {
               if (currentSong?.isExternal) playNext(false);
-          }}
-          onDuration={(d: number) => {
-              if (currentSong?.isExternal && currentSong.duration === 0) {
-                  setImportedSongs(prev => prev.map(s => s.id === (currentSong?.id || "") ? { ...s, duration: d } : s));
-              }
           }}
           onError={() => {
             if (currentSong?.isExternal) playNext(false);
@@ -1303,7 +1347,7 @@ export default function App() {
                                     value={importUrl}
                                     onChange={(e) => setImportUrl(e.target.value)}
                                     placeholder="https://www.youtube.com/watch?v=..."
-                                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#1DB954] transition-all"
+                                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#FF0000] transition-all"
                                 />
                                 <button 
                                     type="button"
@@ -1312,7 +1356,7 @@ export default function App() {
                                     className="px-4 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all flex items-center justify-center min-w-[50px]"
                                     title="Auto-fill details using AI"
                                 >
-                                    {isFetchingMetadata ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4 text-[#1DB954]" />}
+                                    {isFetchingMetadata ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4 text-[#FF0000]" />}
                                 </button>
                             </div>
                         </div>
@@ -1322,7 +1366,7 @@ export default function App() {
                                 value={importTitle}
                                 onChange={(e) => setImportTitle(e.target.value)}
                                 placeholder="Song Title"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#1DB954] transition-all"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#FF0000] transition-all"
                             />
                         </div>
                         <div>
@@ -1331,12 +1375,12 @@ export default function App() {
                                 value={importArtist}
                                 onChange={(e) => setImportArtist(e.target.value)}
                                 placeholder="Artist Name"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#1DB954] transition-all"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#FF0000] transition-all"
                             />
                         </div>
                         <button 
                             type="submit"
-                            className="w-full bg-[#1DB954] text-black font-black uppercase tracking-widest py-4 rounded-xl mt-4 hover:scale-[1.02] active:scale-95 transition-all"
+                            className="w-full bg-[#FF0000] text-black font-black uppercase tracking-widest py-4 rounded-xl mt-4 hover:scale-[1.02] active:scale-95 transition-all"
                         >
                             ADD TO LIBRARY
                         </button>
@@ -1349,13 +1393,13 @@ export default function App() {
       <aside className="w-60 bg-[#000000] border-r border-white/5 flex flex-col p-6 shrink-0 h-full">
         <div className="mb-10">
           <div className="flex flex-col">
-            <div className="text-[#1DB954] font-bold text-2xl tracking-tighter flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#1DB954] rounded-full flex items-center justify-center">
+            <div className="text-[#FF0000] font-bold text-2xl tracking-tighter flex items-center gap-2">
+              <div className="w-8 h-8 bg-[#FF0000] rounded-full flex items-center justify-center">
                 <div className="w-4 h-4 bg-black rounded-full"></div>
               </div>
-              MELODIFY
+              AURAX
             </div>
-            <p className="text-[8px] text-white/30 uppercase tracking-[0.2em] font-black mt-1 ml-10">by Roshan</p>
+            <p className="text-[8px] text-white uppercase tracking-[0.2em] font-black mt-1 ml-10">by Roshan.R.Soyam</p>
           </div>
         </div>
 
@@ -1363,15 +1407,15 @@ export default function App() {
           <div className="space-y-3">
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold px-1">Library</p>
             <div className="space-y-3">
-              <SidebarItem icon={<div className={cn("w-1 h-1 rounded-full", !showSearch && !selectedPlaylistId && !showFavorites && !viewingSong && !showDownloaded && !showAiGenerator && !showArtists && !showProfile && !showReferral ? "bg-[#1DB954]" : "bg-transparent")} />} label="Home" active={!showSearch && !selectedPlaylistId && !showFavorites && !viewingSong && !showDownloaded && !showAiGenerator && !showArtists && !showProfile && !showReferral} onClick={() => { setShowSearch(false); setSelectedPlaylistId(null); setShowFavorites(false); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowArtists(false); setShowProfile(false); setShowReferral(false); }} />
-              <SidebarItem icon={<div className={cn("w-1 h-1 rounded-full", showSearch ? "bg-[#1DB954]" : "bg-transparent")} />} label="Discover" active={showSearch} onClick={() => { setShowSearch(true); setSelectedPlaylistId(null); setShowFavorites(false); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowArtists(false); setShowProfile(false); setShowReferral(false); }} />
-              <SidebarItem icon={<div className={cn("w-1 h-1 rounded-full", showFavorites ? "bg-[#1DB954]" : "bg-transparent")} />} label="Liked Songs" active={showFavorites} onClick={() => { setShowFavorites(true); setShowSearch(false); setSelectedPlaylistId(null); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowArtists(false); setShowProfile(false); setShowReferral(false); }} />
-              <SidebarItem icon={<User className={cn("w-3.5 h-3.5", showArtists ? "text-[#1DB954]" : "text-white/50")} />} label="Artists" active={showArtists} onClick={() => { setShowArtists(true); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowProfile(false); setShowReferral(false); }} />
-              <SidebarItem icon={<div className={cn("w-3.5 h-3.5 rounded-full border border-white/20 flex items-center justify-center text-[8px] font-bold", showProfile ? "bg-[#1DB954]/20 text-[#1DB954] border-[#1DB954]/50" : "text-white/50")}>{user?.displayName?.charAt(0) || 'U'}</div>} label="Profile" active={showProfile} onClick={() => { setShowProfile(true); setShowArtists(false); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowReferral(false); }} />
-              <SidebarItem icon={<Share2 className={cn("w-3.5 h-3.5", showReferral ? "text-[#1DB954]" : "text-white/50")} />} label="Refer a Friend" active={showReferral} onClick={() => { setShowReferral(true); setShowProfile(false); setShowArtists(false); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); }} />
-              <SidebarItem icon={<Download className={cn("w-3.5 h-3.5", showDownloaded ? "text-[#1DB954]" : "text-white/50")} />} label="Downloaded" active={showDownloaded} onClick={() => { setShowDownloaded(true); setShowFavorites(false); setShowSearch(false); setSelectedPlaylistId(null); setViewingSong(null); setShowLyricsQueue(false); setShowAiGenerator(false); setShowArtists(false); setShowProfile(false); setShowReferral(false); }} />
-              <SidebarItem icon={<ListMusic className={cn("w-4 h-4", showLyricsQueue ? "text-[#1DB954]" : "text-white/50")} />} label="Lyrics Queue" active={showLyricsQueue} onClick={() => { setShowLyricsQueue(true); setShowDownloaded(false); setShowFavorites(false); setShowSearch(false); setSelectedPlaylistId(null); setViewingSong(null); setShowProfile(false); setShowReferral(false); }} />
-              <SidebarItem icon={<Sparkles className={cn("w-4 h-4", showAura ? "text-[#1DB954]" : "text-white/50")} />} label="Aura Assistant" active={showAura} onClick={() => { setShowAura(!showAura); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setShowDownloaded(false); setShowLyricsQueue(false); setShowProfile(false); setShowReferral(false); }} />
+              <SidebarItem icon={<div className={cn("w-1 h-1 rounded-full", !showSearch && !selectedPlaylistId && !showFavorites && !viewingSong && !showDownloaded && !showAiGenerator && !showArtists && !showProfile && !showReferral ? "bg-[#FF0000]" : "bg-transparent")} />} label="Home" active={!showSearch && !selectedPlaylistId && !showFavorites && !viewingSong && !showDownloaded && !showAiGenerator && !showArtists && !showProfile && !showReferral} onClick={() => { setShowSearch(false); setSelectedPlaylistId(null); setShowFavorites(false); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowArtists(false); setShowProfile(false); setShowReferral(false); }} />
+              <SidebarItem icon={<div className={cn("w-1 h-1 rounded-full", showSearch ? "bg-[#FF0000]" : "bg-transparent")} />} label="Discover" active={showSearch} onClick={() => { setShowSearch(true); setSelectedPlaylistId(null); setShowFavorites(false); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowArtists(false); setShowProfile(false); setShowReferral(false); }} />
+              <SidebarItem icon={<div className={cn("w-1 h-1 rounded-full", showFavorites ? "bg-[#FF0000]" : "bg-transparent")} />} label="Liked Songs" active={showFavorites} onClick={() => { setShowFavorites(true); setShowSearch(false); setSelectedPlaylistId(null); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowArtists(false); setShowProfile(false); setShowReferral(false); }} />
+              <SidebarItem icon={<User className={cn("w-3.5 h-3.5", showArtists ? "text-[#FF0000]" : "text-white/50")} />} label="Artists" active={showArtists} onClick={() => { setShowArtists(true); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowProfile(false); setShowReferral(false); }} />
+              <SidebarItem icon={<div className={cn("w-3.5 h-3.5 rounded-full border border-white/20 flex items-center justify-center text-[8px] font-bold", showProfile ? "bg-[#FF0000]/20 text-[#FF0000] border-[#FF0000]/50" : "text-white/50")}>{user?.displayName?.charAt(0) || 'U'}</div>} label="Profile" active={showProfile} onClick={() => { setShowProfile(true); setShowArtists(false); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); setShowReferral(false); }} />
+              <SidebarItem icon={<Share2 className={cn("w-3.5 h-3.5", showReferral ? "text-[#FF0000]" : "text-white/50")} />} label="Refer a Friend" active={showReferral} onClick={() => { setShowReferral(true); setShowProfile(false); setShowArtists(false); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); }} />
+              <SidebarItem icon={<Download className={cn("w-3.5 h-3.5", showDownloaded ? "text-[#FF0000]" : "text-white/50")} />} label="Downloaded" active={showDownloaded} onClick={() => { setShowDownloaded(true); setShowFavorites(false); setShowSearch(false); setSelectedPlaylistId(null); setViewingSong(null); setShowLyricsQueue(false); setShowAiGenerator(false); setShowArtists(false); setShowProfile(false); setShowReferral(false); }} />
+              <SidebarItem icon={<ListMusic className={cn("w-4 h-4", showLyricsQueue ? "text-[#FF0000]" : "text-white/50")} />} label="Lyrics Queue" active={showLyricsQueue} onClick={() => { setShowLyricsQueue(true); setShowDownloaded(false); setShowFavorites(false); setShowSearch(false); setSelectedPlaylistId(null); setViewingSong(null); setShowProfile(false); setShowReferral(false); }} />
+              <SidebarItem icon={<Sparkles className={cn("w-4 h-4", showAuraX ? "text-[#FF0000]" : "text-white/50")} />} label="AuraX Assistant" active={showAuraX} onClick={() => { setShowAuraX(!showAuraX); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setShowDownloaded(false); setShowLyricsQueue(false); setShowProfile(false); setShowReferral(false); }} />
               <SidebarItem icon={<PlusSquare className="w-4 h-4 text-white/50" />} label="Import URL" active={false} onClick={() => setShowImportModal(true)} />
             </div>
           </div>
@@ -1381,7 +1425,7 @@ export default function App() {
               <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold">Playlists</p>
               <button 
                 onClick={createPlaylist}
-                className="text-white/30 hover:text-[#1DB954] transition-colors"
+                className="text-white/30 hover:text-[#FF0000] transition-colors"
               >
                 <PlusSquare className="w-3.5 h-3.5" />
               </button>
@@ -1393,7 +1437,7 @@ export default function App() {
                   onClick={() => { setSelectedPlaylistId(playlist.id); setShowSearch(false); setViewingSong(null); setShowProfile(false); setShowFavorites(false); setShowArtists(false); setShowDownloaded(false); setShowAiGenerator(false); setShowReferral(false); }}
                   className={cn(
                     "cursor-pointer transition-colors line-clamp-1 italic",
-                    selectedPlaylistId === playlist.id ? "text-[#1DB954]" : "text-white/50 hover:text-white"
+                    selectedPlaylistId === playlist.id ? "text-[#FF0000]" : "text-white/50 hover:text-white"
                   )}
                 >
                   {playlist.name}
@@ -1427,7 +1471,7 @@ export default function App() {
                     }}
                     className="flex items-center gap-3 group cursor-pointer"
                   >
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-white/5 group-hover:border-[#1DB954]/50 transition-colors">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-white/5 group-hover:border-[#FF0000]/50 transition-colors">
                       <img 
                         src={artistData?.image || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?q=80&w=30&h=30&auto=format&fit=crop"} 
                         className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
@@ -1436,7 +1480,7 @@ export default function App() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-white/50 group-hover:text-white transition-colors truncate font-bold">{artistName}</p>
-                      <p className="text-[8px] uppercase tracking-widest text-white/20 group-hover:text-[#1DB954]/50 transition-colors truncate font-black">
+                      <p className="text-[8px] uppercase tracking-widest text-white/20 group-hover:text-[#FF0000]/50 transition-colors truncate font-black">
                         {artistData?.roles[0] || 'Artist'}
                       </p>
                     </div>
@@ -1453,14 +1497,14 @@ export default function App() {
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold px-1">Settings</p>
             <div className="px-1 py-1 flex items-center justify-between group">
               <span className="text-xs text-white/50">Storage Used</span>
-              <span className="text-[10px] font-black text-[#1DB954] uppercase tracking-widest">{downloadedSongs.size * 12} MB</span>
+              <span className="text-[10px] font-black text-[#FF0000] uppercase tracking-widest">{downloadedSongs.size * 12} MB</span>
             </div>
           </div>
         </nav>
 
         {!isPremium ? (
-          <div className="mt-auto p-4 bg-gradient-to-br from-[#1DB954]/20 to-transparent rounded-xl border border-white/10">
-            <p className="text-[10px] font-bold text-[#1DB954] uppercase tracking-wider mb-1">Free Version</p>
+          <div className="mt-auto p-4 bg-gradient-to-br from-[#FF0000]/20 to-transparent rounded-xl border border-white/10">
+            <p className="text-[10px] font-bold text-[#FF0000] uppercase tracking-wider mb-1">Free Version</p>
             <p className="text-xs text-white/70 leading-relaxed">AI Powered Recommendations</p>
             <button 
               onClick={() => setIsPremium(true)}
@@ -1468,14 +1512,14 @@ export default function App() {
             >Upgrade</button>
           </div>
         ) : (
-          <div className="mt-auto p-4 bg-gradient-to-br from-[#1DB954]/10 to-[#1DB954]/5 rounded-xl border border-[#1DB954]/30 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-[#1DB954]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="mt-auto p-4 bg-gradient-to-br from-[#FF0000]/10 to-[#FF0000]/5 rounded-xl border border-[#FF0000]/30 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-[#FF0000]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-3 h-3 text-[#1DB954]" />
-                    <p className="text-[10px] font-black text-[#1DB954] uppercase tracking-widest">Premium Member</p>
+                    <Sparkles className="w-3 h-3 text-[#FF0000]" />
+                    <p className="text-[10px] font-black text-[#FF0000] uppercase tracking-widest">Premium Member</p>
                 </div>
-                <p className="text-[10px] text-white/60 font-bold leading-tight">Aura Pro Enabled • High Fidelity Audio • Zero Interruption</p>
+                <p className="text-[10px] text-white/60 font-bold leading-tight">AuraX Pro Enabled • High Fidelity Audio • Zero Interruption</p>
             </div>
           </div>
         )}
@@ -1483,6 +1527,19 @@ export default function App() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative overflow-hidden">
+        {!isOnline && (
+            <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                className="bg-red-500/10 border-b border-red-500/20 px-8 py-2 flex items-center justify-between z-50"
+            >
+                <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-red-500">Offline Mode • Playing from downloads only</p>
+                </div>
+                <p className="text-[10px] text-red-500/60 font-bold uppercase tracking-widest">Connect to internet for full access</p>
+            </motion.div>
+        )}
         <header className="h-16 flex items-center justify-between px-8 z-40 bg-transparent">
           <div className="flex gap-4">
             <button 
@@ -1506,7 +1563,7 @@ export default function App() {
               <p className="text-xs font-bold text-white transition-colors">{user.displayName || user.email}</p>
               <p className={cn(
                 "text-[10px] uppercase tracking-tighter transition-colors",
-                isPremium ? "text-[#1DB954] font-black" : "text-white/40"
+                isPremium ? "text-[#FF0000] font-black" : "text-white/40"
               )}>
                 {isPremium ? "PREMIUM ACCOUNT" : "Free Account"}
               </p>
@@ -1514,14 +1571,14 @@ export default function App() {
             <div className="flex items-center gap-2">
                 <div className={cn(
                   "w-10 h-10 rounded-full border p-0.5 transition-all overflow-hidden",
-                  isPremium ? "border-[#1DB954] shadow-[0_0_15px_rgba(29,185,84,0.3)] scale-110" : "border-white/20"
+                  isPremium ? "border-[#FF0000] shadow-[0_0_15px_rgba(255,0,0,0.3)] scale-110" : "border-white/20"
                 )}>
-                  <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#1DB954] to-indigo-600 flex items-center justify-center overflow-hidden">
+                  <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#FF0000] to-indigo-600 flex items-center justify-center overflow-hidden">
                     {user.photoURL ? (
                       <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-[#121212] flex items-center justify-center backdrop-blur-sm">
-                        <User className={cn("w-5 h-5", isPremium ? "text-[#1DB954]" : "text-white/20")} />
+                        <User className={cn("w-5 h-5", isPremium ? "text-[#FF0000]" : "text-white/20")} />
                       </div>
                     )}
                   </div>
@@ -1539,7 +1596,7 @@ export default function App() {
 
         <div className="flex-1 overflow-y-auto px-8 pb-32 scroll-smooth bg-gradient-to-b from-zinc-900/50 to-[#050505]">
           <AnimatePresence mode="wait">
-            {showAura && (
+            {showAuraX && (
                 <motion.div 
                     key="aura-panel"
                     initial={{ opacity: 0, x: 20 }}
@@ -1548,14 +1605,14 @@ export default function App() {
                     className="pt-12 h-content flex flex-col"
                 >
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1DB954] to-emerald-900 flex items-center justify-center shadow-lg shadow-[#1DB954]/20">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FF0000] to-red-900 flex items-center justify-center shadow-lg shadow-[#FF0000]/20">
                             <Sparkles className="w-8 h-8 text-white fill-current" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <h1 className="text-4xl font-black italic tracking-tighter uppercase">Aura AI</h1>
+                                <h1 className="text-4xl font-black italic tracking-tighter uppercase text-white">AuraX AI</h1>
                                 {isPremium && (
-                                    <span className="px-2 py-0.5 bg-white/10 text-[#1DB954] text-[8px] font-black rounded-sm border border-[#1DB954]/30 tracking-widest">PRO</span>
+                                    <span className="px-2 py-0.5 bg-white/10 text-[#FF0000] text-[8px] font-black rounded-sm border border-[#FF0000]/30 tracking-widest">PRO</span>
                                 )}
                             </div>
                             <p className="text-white/40 text-xs font-bold uppercase tracking-widest">
@@ -1566,40 +1623,51 @@ export default function App() {
 
                     <div className="flex-1 min-h-[400px] flex flex-col bg-white/5 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl">
                         <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                            {auraMessages.map((msg, idx) => (
+                            {auraXMessages.length === 0 && (
+                              <div className="h-full flex flex-col items-center justify-center text-center opacity-20 py-20">
+                                  <Sparkles className="w-12 h-12 mb-4" />
+                                  <p className="text-lg font-bold italic">AuraX is ready to assist</p>
+                                  <p className="text-xs">Ask about music history, theory, or current tracks</p>
+                              </div>
+                            )}
+                            {auraXMessages.map((msg, idx) => (
                                 <motion.div 
                                     key={idx}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className={cn(
                                         "max-w-[80%] p-4 rounded-2xl",
-                                        msg.role === 'aura' 
+                                        msg.role === 'auraX' 
                                             ? "bg-white/10 rounded-tl-none mr-auto text-white/90" 
-                                            : "bg-[#1DB954] rounded-tr-none ml-auto text-black font-bold"
+                                            : "bg-[#FF0000] rounded-tr-none ml-auto text-black font-bold"
                                     )}
                                 >
                                     <p className="text-sm leading-relaxed">{msg.text}</p>
                                 </motion.div>
                             ))}
-                            {isAuraLoading && (
+                            {isAuraXLoading && (
                                 <div className="flex items-center gap-2 text-white/30 text-xs font-bold uppercase tracking-widest p-2">
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    Aura is thinking...
+                                    <div className="flex gap-1">
+                                      <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1 h-1 rounded-full bg-white" />
+                                      <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1 h-1 rounded-full bg-white" />
+                                      <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1 h-1 rounded-full bg-white" />
+                                    </div>
+                                    <span>AuraX is thinking...</span>
                                 </div>
                             )}
                         </div>
 
-                        <form onSubmit={handleAuraSend} className="p-4 bg-black/40 border-t border-white/10 flex gap-4">
+                        <form onSubmit={handleAuraXSend} className="p-4 bg-black/40 border-t border-white/10 flex gap-4">
                             <input 
-                                value={auraInput}
-                                onChange={(e) => setAuraInput(e.target.value)}
+                                value={auraXInput}
+                                onChange={(e) => setAuraXInput(e.target.value)}
                                 placeholder={currentSong ? `Ask about "${currentSong.title}"...` : "Ask anything about music..."}
-                                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-[#1DB954] transition-all placeholder:text-white/20"
+                                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-[#FF0000] transition-all placeholder:text-white/20"
                             />
                             <button 
                                 type="submit"
-                                disabled={isAuraLoading}
-                                className="bg-[#1DB954] hover:bg-[#1ed760] disabled:opacity-50 disabled:hover:bg-[#1DB954] text-black px-6 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shrink-0"
+                                disabled={isAuraXLoading}
+                                className="bg-[#FF0000] hover:bg-[#ff1a1a] disabled:opacity-50 disabled:hover:bg-[#FF0000] text-black px-6 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shrink-0"
                             >
                                 Send
                             </button>
@@ -1609,7 +1677,7 @@ export default function App() {
                     {currentSong && (
                         <div className="mt-8 p-6 bg-white/5 border border-white/10 rounded-3xl">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="p-2 rounded-lg bg-[#1DB954]/20 text-[#1DB954]">
+                                <div className="p-2 rounded-lg bg-[#FF0000]/20 text-[#FF0000]">
                                     <Clock className="w-4 h-4" />
                                 </div>
                                 <h3 className="text-xs font-black uppercase tracking-widest">Quick Actions</h3>
@@ -1624,11 +1692,13 @@ export default function App() {
                                     <button 
                                         key={i}
                                         onClick={async () => {
-                                            setAuraInput(q);
+                                            setAuraXInput(q);
+                                            setIsAuraXLoading(true);
                                             // Trigger send automatically
-                                            const response = await getAuraChat(q, currentSong, history, selectedArtists);
-                                            setAuraMessages(prev => [...prev, { role: 'user', text: q }, { role: 'aura', text: response }]);
-                                            setIsAuraLoading(false);
+                                            const response = await getAuraXChat(q, auraXMessages, currentSong, history, selectedArtists);
+                                            setAuraXMessages(prev => [...prev, { role: 'user', text: q }, { role: 'auraX', text: response }]);
+                                            setIsAuraXLoading(false);
+                                            setAuraXInput("");
                                         }}
                                         className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all text-left"
                                     >
@@ -1670,13 +1740,18 @@ export default function App() {
                                     referrerPolicy="no-referrer"
                                 />
                             </motion.div>
+                            {currentSong?.id === viewingSong.id && (
+                                <div className="mt-8 flex justify-center">
+                                    <Visualizer isPlaying={isPlaying} />
+                                </div>
+                            )}
                         </div>
 
                         {/* Details */}
                         <div className="flex-1 flex flex-col justify-end pb-4">
                             <div className="space-y-6">
                                 <div>
-                                    <p className="text-[#1DB954] text-xs font-black uppercase tracking-[0.3em] mb-4">Now Inspecting</p>
+                                    <p className="text-[#FF0000] text-xs font-black uppercase tracking-[0.3em] mb-4">Now Inspecting</p>
                                     <h1 className="text-6xl lg:text-8xl font-black italic tracking-tighter text-white uppercase leading-none mb-6">
                                         {viewingSong.title}
                                     </h1>
@@ -1706,7 +1781,12 @@ export default function App() {
                                     </div>
                                     <div>
                                         <p className="text-white/20 text-[10px] font-black uppercase tracking-widest mb-1">Availability</p>
-                                        <p className="text-[#1DB954] font-bold">Premium High-Res</p>
+                                        <p className={cn(
+                                          "font-bold",
+                                          downloadedSongs.has(viewingSong.id) ? "text-[#FF0000]" : "text-white/40"
+                                        )}>
+                                          {downloadedSongs.has(viewingSong.id) ? "Available Offline" : "Online Only"}
+                                        </p>
                                     </div>
                                 </div>
 
@@ -1716,7 +1796,11 @@ export default function App() {
                                             setCurrentSong(viewingSong);
                                             setIsPlaying(true);
                                         }}
-                                        className="bg-[#1DB954] text-black px-12 py-5 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#1DB954]/20 flex items-center gap-3"
+                                        disabled={!isOnline && !downloadedSongs.has(viewingSong.id)}
+                                        className={cn(
+                                          "bg-[#FF0000] text-black px-12 py-5 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#FF0000]/20 flex items-center gap-3",
+                                          (!isOnline && !downloadedSongs.has(viewingSong.id)) && "opacity-30 grayscale cursor-not-allowed"
+                                        )}
                                     >
                                         <Play className="w-5 h-5 fill-current" />
                                         Play Now
@@ -1727,7 +1811,7 @@ export default function App() {
                                         disabled={downloadedSongs.has(viewingSong.id) || downloadingSongs[viewingSong.id] !== undefined}
                                         className={cn(
                                             "w-16 h-16 rounded-full border border-white/10 flex items-center justify-center transition-all hover:bg-white/5 relative group",
-                                            downloadedSongs.has(viewingSong.id) ? "text-[#1DB954] border-[#1DB954]/20" : "text-white/40"
+                                            downloadedSongs.has(viewingSong.id) ? "text-[#FF0000] border-[#FF0000]/20" : "text-white/40"
                                         )}
                                     >
                                         {downloadingSongs[viewingSong.id] !== undefined ? (
@@ -1749,7 +1833,7 @@ export default function App() {
                                         onClick={() => toggleFavorite(viewingSong.id)}
                                         className={cn(
                                             "w-16 h-16 rounded-full border border-white/10 flex items-center justify-center transition-all hover:bg-white/5",
-                                            favorites.has(viewingSong.id) ? "text-[#1DB954] bg-[#1DB954]/5 border-[#1DB954]/20" : "text-white/40"
+                                            favorites.has(viewingSong.id) ? "text-[#FF0000] bg-[#FF0000]/5 border-[#FF0000]/20" : "text-white/40"
                                         )}
                                     >
                                         <Heart className={cn("w-6 h-6", favorites.has(viewingSong.id) && "fill-current")} />
@@ -1759,7 +1843,7 @@ export default function App() {
                                         onClick={fetchViewingLyrics}
                                         className={cn(
                                             "flex items-center gap-2 px-6 h-16 rounded-full border border-white/10 transition-all hover:bg-white/5",
-                                            showViewingLyrics ? "text-[#1DB954] border-[#1DB954]/20 bg-[#1DB954]/5" : "text-white/40"
+                                            showViewingLyrics ? "text-[#FF0000] border-[#FF0000]/20 bg-[#FF0000]/5" : "text-white/40"
                                         )}
                                     >
                                         <Languages className="w-5 h-5" />
@@ -1774,7 +1858,7 @@ export default function App() {
                                         className="mt-12 p-8 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-sm"
                                     >
                                         <div className="flex justify-between items-center mb-8">
-                                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#1DB954]">Lyrics</p>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF0000]">Lyrics</p>
                                             <button onClick={() => setShowViewingLyrics(false)} className="text-white/20 hover:text-white transition-colors">
                                                 <X className="w-4 h-4" />
                                             </button>
@@ -1798,19 +1882,19 @@ export default function App() {
                 </motion.div>
             )}
 
-            {showAiGenerator && !showAura && !viewingSong && (
+            {showAiGenerator && !showAuraX && !viewingSong && (
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="pt-12"
                 >
                   <div className="flex items-end gap-6 mb-12">
-                    <div className="w-52 h-52 bg-gradient-to-br from-[#1DB954] to-black shadow-2xl flex items-center justify-center rounded-2xl overflow-hidden relative group">
+                    <div className="w-52 h-52 bg-gradient-to-br from-[#FF0000] to-black shadow-2xl flex items-center justify-center rounded-2xl overflow-hidden relative group">
                       <Wand2 className="w-20 h-20 text-black z-10 transition-transform group-hover:scale-110" />
                       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=600&h=600&fit=crop')] opacity-20 mix-blend-overlay" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-black uppercase tracking-widest text-[#1DB954] mb-2">Experimental Feature</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-[#FF0000] mb-2">Experimental Feature</p>
                       <h1 className="text-7xl font-black italic tracking-tighter text-white leading-none mb-4 uppercase">Playlist Lab</h1>
                       <div className="flex items-center gap-4 text-sm text-white/50 font-bold uppercase tracking-widest">
                         <span>AI-Powered Mix Generation</span>
@@ -1821,12 +1905,12 @@ export default function App() {
                   <div className="bg-white/5 rounded-3xl p-8 border border-white/10 backdrop-blur-xl mb-12">
                     <form onSubmit={handleAiSearch} className="space-y-8">
                       <div className="space-y-4">
-                        <label className="text-xs font-black uppercase tracking-widest text-[#1DB954]">What's the vibe?</label>
+                        <label className="text-xs font-black uppercase tracking-widest text-[#FF0000]">What's the vibe?</label>
                         <textarea 
                           value={aiPrompt}
                           onChange={(e) => setAiPrompt(e.target.value)}
                           placeholder="Describe a mood, activity, or setting... (e.g. 'Midnight drive through a rainy neon city', 'Intense focus for high-stakes gaming', 'Sunday morning coffee on a balcony')"
-                          className="w-full bg-black/40 border border-white/10 rounded-2xl p-6 text-xl font-bold focus:outline-none focus:ring-2 focus:ring-[#1DB954]/50 transition-all placeholder:text-white/10 italic min-h-[120px] resize-none"
+                          className="w-full bg-black/40 border border-white/10 rounded-2xl p-6 text-xl font-bold focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 transition-all placeholder:text-white/10 italic min-h-[120px] resize-none"
                         />
                       </div>
 
@@ -1836,7 +1920,7 @@ export default function App() {
                           <select 
                             value={selectedGenre}
                             onChange={(e) => setSelectedGenre(e.target.value)}
-                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-sm font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-[#1DB954]/50 transition-all cursor-pointer appearance-none text-zinc-300"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-sm font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-[#FF0000]/50 transition-all cursor-pointer appearance-none text-zinc-300"
                           >
                             <option value="" className="bg-zinc-900">All Genres</option>
                             {["Pop", "Hip-Hop", "Rock", "Jazz", "Electronic", "Synthwave", "Ambient", "Industrial", "Deep House", "Chillout"].map(g => (
@@ -1850,7 +1934,7 @@ export default function App() {
                           <select 
                             value={selectedYear}
                             onChange={(e) => setSelectedYear(e.target.value)}
-                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-sm font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-[#1DB954]/50 transition-all cursor-pointer appearance-none text-zinc-300"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-sm font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-[#FF0000]/50 transition-all cursor-pointer appearance-none text-zinc-300"
                           >
                             <option value="" className="bg-zinc-900">Any Era</option>
                             {["2024", "2023", "2022", "2021", "2020", "2010s", "2000s", "90s", "80s"].map(y => (
@@ -1864,7 +1948,7 @@ export default function App() {
                         <button 
                           type="submit"
                           disabled={isLoadingRecs || !aiPrompt.trim()}
-                          className="flex-1 bg-[#1DB954] text-black h-16 rounded-full font-black text-sm uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-3"
+                          className="flex-1 bg-[#FF0000] text-black h-16 rounded-full font-black text-sm uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-3"
                         >
                           {isLoadingRecs ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                             <>
@@ -1891,7 +1975,7 @@ export default function App() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <h2 className="text-2xl font-black italic tracking-tighter uppercase">Generated Results</h2>
-                          <span className="px-3 py-1 bg-[#1DB954]/10 text-[#1DB954] text-[8px] font-black uppercase tracking-widest rounded-full border border-[#1DB954]/20 animate-pulse">Analysis Complete</span>
+                          <span className="px-3 py-1 bg-[#FF0000]/10 text-[#FF0000] text-[8px] font-black uppercase tracking-widest rounded-full border border-[#FF0000]/20 animate-pulse">Analysis Complete</span>
                         </div>
                         <button 
                           onClick={saveAiRecsAsPlaylist}
@@ -1929,7 +2013,7 @@ export default function App() {
                 </motion.div>
             )}
 
-            {showLyricsQueue && !showAura && !viewingSong && (
+            {showLyricsQueue && !showAuraX && !viewingSong && (
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -1940,7 +2024,7 @@ export default function App() {
                       <ListMusic className="w-20 h-20 text-white" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-black uppercase tracking-widest text-[#1DB954] mb-2">Focused Study</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-[#FF0000] mb-2">Focused Study</p>
                       <h1 className="text-7xl font-black italic tracking-tighter text-white leading-none mb-4 uppercase">Lyrics Queue</h1>
                       <div className="flex items-center gap-2 text-sm text-white/50 font-bold uppercase tracking-widest">
                         <span className="text-white">Temporary Collection</span> • {Array.from(lyricsQueue).length} tracks
@@ -1988,21 +2072,21 @@ export default function App() {
                 </motion.div>
              )}
 
-            {showDownloaded && !showAura && !viewingSong && (
+            {showDownloaded && !showAuraX && !viewingSong && (
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="pt-12"
                 >
                   <div className="flex items-end gap-6 mb-12">
-                    <div className="w-52 h-52 bg-gradient-to-br from-green-600 to-green-900 shadow-2xl flex items-center justify-center rounded-2xl overflow-hidden relative">
+                    <div className="w-52 h-52 bg-gradient-to-br from-red-600 to-red-900 shadow-2xl flex items-center justify-center rounded-2xl overflow-hidden relative">
                       <Download className="w-20 h-20 text-white" />
                     </div>
                     <div className="flex-1">
                       <p className="text-xs font-black uppercase tracking-widest text-white/40 mb-2">Library</p>
                       <h1 className="text-7xl font-black italic tracking-tighter text-white leading-none mb-4 uppercase">Downloaded</h1>
                       <div className="flex items-center gap-2 text-sm text-white/50 font-bold uppercase tracking-widest">
-                        <span className="text-white">Offline Mode Enabled</span> • {Array.from(downloadedSongs).length} tracks
+                        <span className="text-white">{isOnline ? "Cloud Sync Active" : "Offline Mode Enabled"}</span> • {Object.keys(offlineMetadata).length} tracks
                       </div>
                     </div>
                   </div>
@@ -2047,7 +2131,7 @@ export default function App() {
                 </motion.div>
              )}
 
-            {showArtists && !showAura && !viewingSong && (
+            {showArtists && !showAuraX && !viewingSong && (
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -2055,7 +2139,7 @@ export default function App() {
                 >
                   <div className="flex items-end gap-6 mb-12">
                     <div className="w-52 h-52 bg-gradient-to-br from-white/10 to-transparent shadow-2xl flex items-center justify-center rounded-full overflow-hidden relative border border-white/10 p-8 group">
-                       <User className="w-full h-full text-white/20 group-hover:text-[#1DB954]/40 transition-colors" />
+                       <User className="w-full h-full text-white/20 group-hover:text-[#FF0000]/40 transition-colors" />
                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     </div>
                     <div className="flex-1">
@@ -2085,7 +2169,7 @@ export default function App() {
                             }}
                             className="bg-white/5 border border-white/5 p-4 rounded-3xl flex flex-col items-center gap-4 cursor-pointer hover:bg-white/10 transition-all shadow-lg group relative overflow-hidden"
                           >
-                            <div className="absolute inset-0 bg-gradient-to-b from-[#1DB954]/0 to-[#1DB954]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute inset-0 bg-gradient-to-b from-[#FF0000]/0 to-[#FF0000]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                             <div className="w-full aspect-square rounded-2xl bg-white/5 overflow-hidden shadow-2xl relative">
                                <img 
                                  src={artistData?.image || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?q=80&w=200&h=200&auto=format&fit=crop"} 
@@ -2093,13 +2177,13 @@ export default function App() {
                                  alt={artistName}
                                />
                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-center p-4">
-                                  <div className="bg-[#1DB954] w-10 h-10 rounded-full flex items-center justify-center text-black shadow-xl translate-y-10 group-hover:translate-y-0 transition-transform duration-300">
+                                  <div className="bg-[#FF0000] w-10 h-10 rounded-full flex items-center justify-center text-black shadow-xl translate-y-10 group-hover:translate-y-0 transition-transform duration-300">
                                      <Play className="w-5 h-5 fill-current" />
                                   </div>
                                </div>
                             </div>
                             <div className="text-center w-full">
-                               <span className="text-sm font-bold text-white block truncate mb-1 group-hover:text-[#1DB954] transition-colors">{artistName}</span>
+                               <span className="text-sm font-bold text-white block truncate mb-1 group-hover:text-[#FF0000] transition-colors">{artistName}</span>
                                <span className="text-[10px] font-black uppercase tracking-widest text-white/30 truncate block">
                                   {artistData?.roles[0] || 'Artist'}
                                </span>
@@ -2122,21 +2206,21 @@ export default function App() {
                 </motion.div>
             )}
 
-            {showReferral && !showAura && !viewingSong && (
+            {showReferral && !showAuraX && !viewingSong && (
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="pt-12 max-w-2xl"
                 >
                   <div className="flex items-center gap-6 mb-12">
-                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#1DB954] to-[#1ed760] flex items-center justify-center shadow-xl shadow-[#1DB954]/20">
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#FF0000] to-[#ff3333] flex items-center justify-center shadow-xl shadow-[#FF0000]/20">
                       <Gift className="w-10 h-10 text-black" />
                     </div>
                     <div>
                       <h1 className="text-4xl font-black italic tracking-tighter text-white uppercase leading-none mb-2">
                         Refer a Friend
                       </h1>
-                      <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest text-[#1DB954]">Share the music, earn rewards</p>
+                      <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest text-[#FF0000]">Share the music, earn rewards</p>
                     </div>
                   </div>
 
@@ -2144,10 +2228,10 @@ export default function App() {
                     <div className="space-y-8">
                       <div>
                         <h3 className="text-white font-black italic uppercase tracking-tight text-xl mb-2">Your Referral Code</h3>
-                        <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Share this code with your friends and they'll get a special badge when they join Melodify.</p>
+                        <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Share this code with your friends and they'll get a special badge when they join AuraX.</p>
                         
                         <div className="flex items-center gap-4">
-                          <div className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-8 py-5 text-2xl font-black tracking-[0.5em] text-[#1DB954] flex items-center justify-center">
+                          <div className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-8 py-5 text-2xl font-black tracking-[0.5em] text-[#FF0000] flex items-center justify-center">
                             {referralCode}
                           </div>
                           <button 
@@ -2176,7 +2260,7 @@ export default function App() {
                             onClick={() => {
                               navigator.clipboard.writeText(`https://melodify.ai/join?ref=${referralCode}`);
                             }}
-                            className="text-[#1DB954] text-xs font-black uppercase tracking-widest hover:underline"
+                            className="text-[#FF0000] text-xs font-black uppercase tracking-widest hover:underline"
                           >
                             Copy Link
                           </button>
@@ -2187,18 +2271,18 @@ export default function App() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
-                      <div className="text-[#1DB954] font-black text-3xl mb-1 italic">0</div>
+                      <div className="text-[#FF0000] font-black text-3xl mb-1 italic">0</div>
                       <div className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Friends Referred</div>
                     </div>
                     <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
-                      <div className="text-[#1DB954] font-black text-3xl mb-1 italic">N/A</div>
+                      <div className="text-[#FF0000] font-black text-3xl mb-1 italic">N/A</div>
                       <div className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Active Rewards</div>
                     </div>
                   </div>
                 </motion.div>
             )}
 
-            {showProfile && !showAura && !viewingSong && (
+            {showProfile && !showAuraX && !viewingSong && (
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -2206,7 +2290,7 @@ export default function App() {
                 >
                   <div className="flex items-center gap-6 mb-12">
                     <div className="relative group">
-                      <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-[#1DB954]/30 shadow-2xl shadow-[#1DB954]/10">
+                      <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-[#FF0000]/30 shadow-2xl shadow-[#FF0000]/10">
                         {editPhoto ? (
                           <img src={editPhoto} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
@@ -2229,36 +2313,36 @@ export default function App() {
 
                   <form onSubmit={handleUpdateProfile} className="space-y-6 bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-xl">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#1DB954] ml-1">Display Name</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#FF0000] ml-1">Display Name</label>
                       <input 
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white focus:outline-none focus:ring-1 focus:ring-[#1DB954] transition-all"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white focus:outline-none focus:ring-1 focus:ring-[#FF0000] transition-all"
                         placeholder="Your name"
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#1DB954] ml-1">Email Address</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#FF0000] ml-1">Email Address</label>
                       <input 
                         type="email"
                         value={editEmail}
                         onChange={(e) => setEditEmail(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white focus:outline-none focus:ring-1 focus:ring-[#1DB954] transition-all"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white focus:outline-none focus:ring-1 focus:ring-[#FF0000] transition-all"
                         placeholder="your@email.com"
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#1DB954] ml-1">Profile Picture URL</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#FF0000] ml-1">Profile Picture URL</label>
                       <input 
                         type="url"
                         value={editPhoto}
                         onChange={(e) => setEditPhoto(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white focus:outline-none focus:ring-1 focus:ring-[#1DB954] transition-all"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white focus:outline-none focus:ring-1 focus:ring-[#FF0000] transition-all"
                         placeholder="https://example.com/photo.jpg"
                       />
                     </div>
@@ -2267,7 +2351,7 @@ export default function App() {
                       <button 
                         type="submit"
                         disabled={isUpdatingProfile}
-                        className="bg-[#1DB954] hover:bg-[#1ed760] text-black px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2 disabled:opacity-50"
+                        className="bg-[#FF0000] hover:bg-[#ff3333] text-black px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2 disabled:opacity-50"
                       >
                         {isUpdatingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                         Save Changes
@@ -2277,7 +2361,7 @@ export default function App() {
                         <motion.span 
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className="text-[#1DB954] text-xs font-bold uppercase tracking-widest flex items-center gap-2"
+                          className="text-[#FF0000] text-xs font-bold uppercase tracking-widest flex items-center gap-2"
                         >
                           <CheckCircle2 className="w-4 h-4" />
                           Updated Successfully
@@ -2291,10 +2375,27 @@ export default function App() {
                       </p>
                     )}
                   </form>
+
+                  <div className="pt-8 mt-12 border-t border-white/5 space-y-6">
+                    <div className="flex flex-col gap-2">
+                      <h3 className="text-white font-black italic uppercase tracking-tight text-xl">Account Session</h3>
+                      <p className="text-zinc-500 text-sm">Click below to sign out and return to the entry screen to test different login methods.</p>
+                    </div>
+                    <button 
+                      onClick={handleSignOut}
+                      className="w-full flex items-center justify-center gap-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.01] active:scale-[0.98]"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out Now
+                    </button>
+                    <p className="text-zinc-600 text-[10px] text-center font-bold uppercase tracking-widest">
+                      Your preferences and playlists are synced to your account.
+                    </p>
+                  </div>
                 </motion.div>
             )}
 
-            {showFavorites && !showAura && !viewingSong && (
+            {showFavorites && !showAuraX && !viewingSong && (
                <motion.div 
                  initial={{ opacity: 0 }}
                  animate={{ opacity: 1 }}
@@ -2352,7 +2453,7 @@ export default function App() {
                </motion.div>
             )}
 
-            {selectedPlaylist && !showFavorites && !showAura && !viewingSong && (
+            {selectedPlaylist && !showFavorites && !showAuraX && !viewingSong && (
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -2384,7 +2485,7 @@ export default function App() {
                                 setIsPlaying(true);
                             }
                         }}
-                        className="bg-[#1DB954] text-black px-10 py-4 rounded-full font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform shadow-xl"
+                        className="bg-[#FF0000] text-black px-10 py-4 rounded-full font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform shadow-xl"
                       >
                         <Play className="w-4 h-4 fill-current" /> PLAY
                       </button>
@@ -2392,7 +2493,7 @@ export default function App() {
                          onClick={toggleShuffle}
                          className={cn(
                              "w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all",
-                             isShuffleOn ? "border-[#1DB954] text-[#1DB954] bg-[#1DB954]/10" : "border-white/20 text-white/40 hover:border-white/40"
+                             isShuffleOn ? "border-[#FF0000] text-[#FF0000] bg-[#FF0000]/10" : "border-white/20 text-white/40 hover:border-white/40"
                          )}
                       >
                         <Shuffle className="w-5 h-5" />
@@ -2450,7 +2551,7 @@ export default function App() {
               </motion.div>
             )}
 
-            {!selectedPlaylist && showLyrics && !showAura && !viewingSong && (
+            {!selectedPlaylist && showLyrics && !showAuraX && !viewingSong && (
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -2461,7 +2562,7 @@ export default function App() {
                         <div className="flex justify-between items-start mb-12">
                             <div>
                                 <h1 className="text-6xl font-black italic tracking-tighter mb-4 text-white uppercase">{currentSong?.title}</h1>
-                                <p className="text-xl font-bold text-[#1DB954] uppercase tracking-widest">{currentSong?.artist}</p>
+                                <p className="text-xl font-bold text-[#FF0000] uppercase tracking-widest">{currentSong?.artist}</p>
                             </div>
                             <button 
                                 onClick={() => setShowLyrics(false)}
@@ -2489,7 +2590,7 @@ export default function App() {
                 </motion.div>
             )}
 
-            {showSearch && !selectedPlaylistId && !showFavorites && !showAura && !viewingSong && (
+            {showSearch && !selectedPlaylistId && !showFavorites && !showAuraX && !viewingSong && (
              <motion.section 
                 key="search-panel"
                 initial={{ opacity: 0 }}
@@ -2498,24 +2599,24 @@ export default function App() {
                 className="mt-6"
              >
                 <div className="flex items-center gap-2 mb-8">
-                    <Sparkles className="w-5 h-5 text-[#1DB954]" />
+                    <Sparkles className="w-5 h-5 text-[#FF0000]" />
                     <h2 className="text-2xl font-black italic tracking-tighter uppercase">AI Studio curation</h2>
                 </div>
                 
                 <form onSubmit={handleAiSearch} className="mb-10">
                     <div className="relative group max-w-2xl shadow-2xl mb-6">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1DB954]" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#FF0000]" />
                         <input 
                             value={aiPrompt}
                             onChange={(e) => setAiPrompt(e.target.value)}
                             type="text" 
                             placeholder="Describe your mood... (e.g. Synthwave for coding)" 
-                            className="w-full bg-white/5 backdrop-blur-xl rounded-2xl pl-12 pr-4 py-4 text-xl font-bold focus:outline-none focus:ring-1 focus:ring-[#1DB954]/50 border border-white/10 transition-all placeholder:text-white/20 italic"
+                            className="w-full bg-white/5 backdrop-blur-xl rounded-2xl pl-12 pr-4 py-4 text-xl font-bold focus:outline-none focus:ring-1 focus:ring-[#FF0000]/50 border border-white/10 transition-all placeholder:text-white/20 italic"
                         />
                         <button 
                             type="submit"
                             disabled={isLoadingRecs}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-2 bg-[#1DB954] rounded-full text-black text-xs font-black uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-2 bg-[#FF0000] rounded-full text-black text-xs font-black uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50"
                         >
                             {isLoadingRecs ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "GENERATE"}
                         </button>
@@ -2527,7 +2628,7 @@ export default function App() {
                             <select 
                                 value={selectedGenre}
                                 onChange={(e) => setSelectedGenre(e.target.value)}
-                                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-1 focus:ring-[#1DB954]/50 transition-all cursor-pointer appearance-none min-w-[140px] text-zinc-300"
+                                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-1 focus:ring-[#FF0000]/50 transition-all cursor-pointer appearance-none min-w-[140px] text-zinc-300"
                             >
                                 <option value="" className="bg-zinc-900">All Genres</option>
                                 {["Pop", "Hip-Hop", "Rock", "Jazz", "Electronic", "Synthwave", "Ambient", "Industrial", "Deep House", "Chillout"].map(g => (
@@ -2541,7 +2642,7 @@ export default function App() {
                             <select 
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(e.target.value)}
-                                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-1 focus:ring-[#1DB954]/50 transition-all cursor-pointer appearance-none min-w-[140px] text-zinc-300"
+                                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-1 focus:ring-[#FF0000]/50 transition-all cursor-pointer appearance-none min-w-[140px] text-zinc-300"
                             >
                                 <option value="" className="bg-zinc-900">Any Year</option>
                                 {["2024", "2023", "2022", "2021", "2020", "2010s", "2000s", "90s", "80s"].map(y => (
@@ -2554,7 +2655,7 @@ export default function App() {
                             <button 
                                 type="button"
                                 onClick={() => { setSelectedGenre(""); setSelectedYear(""); setAiPrompt(""); setAiRecs([]); }}
-                                className="self-end mb-3 text-white/30 hover:text-[#1DB954] text-[9px] font-black uppercase tracking-widest transition-colors flex items-center gap-1 group"
+                                className="self-end mb-3 text-white/30 hover:text-[#FF0000] text-[9px] font-black uppercase tracking-widest transition-colors flex items-center gap-1 group"
                             >
                                 <X className="w-3 h-3 group-hover:rotate-90 transition-transform" />
                                 Clear Filters
@@ -2567,9 +2668,9 @@ export default function App() {
                     <div className="mb-12">
                         <div className="flex items-center justify-between mb-6 px-1">
                             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">Curated results</p>
-                            <div className="flex items-center gap-2 px-3 py-1 bg-[#1DB954]/10 rounded-full border border-[#1DB954]/20">
-                                <div className="w-1 h-1 bg-[#1DB954] rounded-full animate-ping" />
-                                <span className="text-[8px] font-black uppercase tracking-widest text-[#1DB954]">Algorithmic Match: 98.4%</span>
+                            <div className="flex items-center gap-2 px-3 py-1 bg-[#FF0000]/10 rounded-full border border-[#FF0000]/20">
+                                <div className="w-1 h-1 bg-[#FF0000] rounded-full animate-ping" />
+                                <span className="text-[8px] font-black uppercase tracking-widest text-[#FF0000]">Algorithmic Match: 98.4%</span>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -2622,7 +2723,7 @@ export default function App() {
              </motion.section>
           )}
 
-          {!showSearch && !selectedPlaylistId && !showFavorites && !showAura && !viewingSong && !showDownloaded && !showAiGenerator && !showLyricsQueue && (
+          {!showSearch && !selectedPlaylistId && !showFavorites && !showAuraX && !viewingSong && !showDownloaded && !showAiGenerator && !showLyricsQueue && (
             <motion.div
                 key="home-panel"
                 initial={{ opacity: 0 }}
@@ -2630,7 +2731,7 @@ export default function App() {
                 exit={{ opacity: 0 }}
             >
                 <section className="relative h-[340px] rounded-3xl overflow-hidden mb-12 group mt-6">
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#1DB954] to-[#0a4d23] opacity-90 transition-opacity group-hover:opacity-100"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#FF0000] to-[#800000] opacity-90 transition-opacity group-hover:opacity-100"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,#ffffff33,transparent_60%)]"></div>
                   <div className="relative h-full p-12 flex flex-col justify-end">
                     <p className="text-[11px] font-bold uppercase tracking-[0.4em] mb-4 text-white/80">Editor's Selection</p>
@@ -2652,7 +2753,7 @@ export default function App() {
                         onClick={() => toggleFollow('editors-selection')}
                         className={cn(
                             "text-xs font-black tracking-widest border-b-2 pb-1 cursor-pointer transition-colors uppercase",
-                            followedPlaylists.has('editors-selection') ? "border-[#1DB954] text-[#1DB954]" : "border-white/40 text-white hover:border-white"
+                            followedPlaylists.has('editors-selection') ? "border-[#FF0000] text-[#FF0000]" : "border-white/40 text-white hover:border-white"
                         )}
                       >
                         {followedPlaylists.has('editors-selection') ? "FOLLOWED" : "FOLLOW PLAYLIST"}
@@ -2674,7 +2775,7 @@ export default function App() {
                                     setCurrentSong(MOCK_SONGS[0]);
                                     setIsPlaying(true);
                                 }}
-                                className="text-[10px] font-black text-[#1DB954] uppercase tracking-widest hover:underline"
+                                className="text-[10px] font-black text-[#FF0000] uppercase tracking-widest hover:underline"
                             >
                                 Play All
                             </button>
@@ -2690,14 +2791,14 @@ export default function App() {
                                     }}
                                     className="min-w-[160px] group cursor-pointer"
                                 >
-                                    <div className="aspect-square rounded-xl overflow-hidden mb-3 relative">
+                    <div className="aspect-square rounded-xl overflow-hidden mb-3 relative">
                                         <img src={song.coverUrl} alt={song.title} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" referrerPolicy="no-referrer" />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <div className="w-10 h-10 bg-[#1DB954] rounded-full flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                                            <div className="w-10 h-10 bg-[#FF0000] rounded-full flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">
                                                 <Play className="w-5 h-5 text-black fill-black ml-0.5" />
                                             </div>
                                         </div>
-                                    </div>
+                    </div>
                                     <p className="text-xs font-bold text-white truncate">{song.title}</p>
                                     <p className="text-[10px] text-white/40 uppercase font-black tracking-widest truncate">{song.artist}</p>
                                 </div>
@@ -2715,7 +2816,7 @@ export default function App() {
                                     setCurrentSong(tollySongs[0]);
                                     setIsPlaying(true);
                                 }}
-                                className="text-[10px] font-black text-[#1DB954] uppercase tracking-widest hover:underline"
+                                className="text-[10px] font-black text-[#FF0000] uppercase tracking-widest hover:underline"
                             >
                                 Play All
                             </button>
@@ -2732,14 +2833,14 @@ export default function App() {
                                     }}
                                     className="min-w-[160px] group cursor-pointer"
                                 >
-                                    <div className="aspect-square rounded-xl overflow-hidden mb-3 relative">
+                    <div className="aspect-square rounded-xl overflow-hidden mb-3 relative">
                                         <img src={song.coverUrl} alt={song.title} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" referrerPolicy="no-referrer" />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <div className="w-10 h-10 bg-[#1DB954] rounded-full flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                                            <div className="w-10 h-10 bg-[#FF0000] rounded-full flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">
                                                 <Play className="w-5 h-5 text-black fill-black ml-0.5" />
                                             </div>
                                         </div>
-                                    </div>
+                    </div>
                                     <p className="text-xs font-bold text-white truncate">{song.title}</p>
                                     <p className="text-[10px] text-white/40 uppercase font-black tracking-widest truncate">{song.artist}</p>
                                 </div>
@@ -2750,7 +2851,7 @@ export default function App() {
                     <section>
                         <div className="flex items-center justify-between mb-6 px-1">
                             <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-white/30">Smart Vibe</h2>
-                            <div className="text-[10px] font-black text-[#1DB954] uppercase tracking-widest animate-pulse">Analyzing...</div>
+                            <div className="text-[10px] font-black text-[#FF0000] uppercase tracking-widest animate-pulse">Analyzing...</div>
                         </div>
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden backdrop-blur-xl">
                             <div className="relative z-10">
@@ -2760,17 +2861,17 @@ export default function App() {
                                 </p>
                                 <div className="flex gap-4">
                                     <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#1DB954] w-3/4 shadow-[0_0_10px_#1DB954]" />
+                                        <div className="h-full bg-[#FF0000] w-3/4 shadow-[0_0_10px_#FF0000]" />
                                     </div>
                                     <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#1DB954] w-1/2 shadow-[0_0_10px_#1DB954]" />
+                                        <div className="h-full bg-[#FF0000] w-1/2 shadow-[0_0_10px_#FF0000]" />
                                     </div>
                                     <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#1DB954] w-4/5 shadow-[0_0_10px_#1DB954]" />
+                                        <div className="h-full bg-[#FF0000] w-4/5 shadow-[0_0_10px_#FF0000]" />
                                     </div>
                                 </div>
                             </div>
-                            <Sparkles className="absolute -top-4 -right-4 w-24 h-24 text-[#1DB954]/5 rotate-12" />
+                            <Sparkles className="absolute -top-4 -right-4 w-24 h-24 text-[#FF0000]/5 rotate-12" />
                         </div>
                     </section>
                     <section>
@@ -2798,7 +2899,7 @@ export default function App() {
                                         onClick={(e) => { e.stopPropagation(); toggleLyricsQueue(song.id); }}
                                         className={cn(
                                             "w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all",
-                                            lyricsQueue.has(song.id) ? "bg-[#1DB954] text-black" : "bg-white/5 text-white/40 hover:text-[#1DB954] hover:bg-[#1DB954]/10"
+                                            lyricsQueue.has(song.id) ? "bg-[#FF0000] text-black" : "bg-white/5 text-white/40 hover:text-[#FF0000] hover:bg-[#FF0000]/10"
                                         )}
                                         title={lyricsQueue.has(song.id) ? "Remove from Lyrics Queue" : "Add to Lyrics Queue"}
                                     >
@@ -2806,21 +2907,21 @@ export default function App() {
                                     </button>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); setViewingSong(song); }}
-                                        className="w-8 h-8 rounded-full bg-white/5 text-white/40 hover:text-[#1DB954] hover:bg-[#1DB954]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                                        className="w-8 h-8 rounded-full bg-white/5 text-white/40 hover:text-[#FF0000] hover:bg-[#FF0000]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
                                         title="View Lyrics"
                                     >
                                         <Languages className="w-4 h-4" />
                                     </button>
                                     {downloadingSongs[song.id] !== undefined ? (
-                                        <div className="w-8 h-8 rounded-full border border-[#1DB954]/20 flex items-center justify-center">
-                                            <Loader2 className="w-3 h-3 animate-spin text-[#1DB954]" />
+                                        <div className="w-8 h-8 rounded-full border border-[#FF0000]/20 flex items-center justify-center">
+                                            <Loader2 className="w-3 h-3 animate-spin text-[#FF0000]" />
                                         </div>
                                     ) : downloadedSongs.has(song.id) ? (
-                                        <CheckCircle2 className="w-4 h-4 text-[#1DB954]" />
+                                        <CheckCircle2 className="w-4 h-4 text-[#FF0000]" />
                                     ) : (
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handleDownload(song); }}
-                                            className="w-8 h-8 rounded-full bg-white/5 text-white/40 hover:text-[#1DB954] hover:bg-[#1DB954]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                                            className="w-8 h-8 rounded-full bg-white/5 text-white/40 hover:text-[#FF0000] hover:bg-[#FF0000]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
                                         >
                                             <Download className="w-4 h-4" />
                                         </button>
@@ -2853,7 +2954,7 @@ export default function App() {
                                             onClick={(e) => { e.stopPropagation(); toggleLyricsQueue(song.id); }}
                                             className={cn(
                                                 "w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all",
-                                                lyricsQueue.has(song.id) ? "bg-[#1DB954] text-black" : "bg-white/5 text-white/40 hover:text-[#1DB954] hover:bg-[#1DB954]/10"
+                                                lyricsQueue.has(song.id) ? "bg-[#FF0000] text-black" : "bg-white/5 text-white/40 hover:text-[#FF0000] hover:bg-[#FF0000]/10"
                                             )}
                                             title={lyricsQueue.has(song.id) ? "Remove from Lyrics Queue" : "Add to Lyrics Queue"}
                                         >
@@ -2861,7 +2962,7 @@ export default function App() {
                                         </button>
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); setViewingSong(song); }}
-                                            className="w-8 h-8 rounded-full bg-white/5 text-white/40 hover:text-[#1DB954] hover:bg-[#1DB954]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all font-black uppercase tracking-widest"
+                                            className="w-8 h-8 rounded-full bg-white/5 text-white/40 hover:text-[#FF0000] hover:bg-[#FF0000]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all font-black uppercase tracking-widest"
                                             title="View Lyrics"
                                         >
                                             <Languages className="w-4 h-4" />
@@ -2873,7 +2974,7 @@ export default function App() {
                                                 setCurrentSong(song);
                                                 setIsPlaying(true);
                                             }}
-                                            className="w-8 h-8 rounded-full bg-[#1DB954]/10 text-[#1DB954] hover:bg-[#1DB954]/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all font-black uppercase tracking-widest shadow-[0_0_10px_rgba(29,185,84,0.2)]"
+                                            className="w-8 h-8 rounded-full bg-[#FF0000]/10 text-[#FF0000] hover:bg-[#FF0000]/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all font-black uppercase tracking-widest shadow-[0_0_10px_rgba(255,0,0,0.2)]"
                                         >
                                             <Play className="w-4 h-4 fill-current ml-0.5" />
                                         </button>
@@ -2902,7 +3003,7 @@ export default function App() {
                 exit={{ opacity: 0, x: 10 }}
                 className="flex items-center gap-4 group"
               >
-                <div className="w-14 h-14 bg-gradient-to-bl from-[#1DB954] to-black rounded-lg overflow-hidden shadow-2xl relative">
+                <div className="w-14 h-14 bg-gradient-to-bl from-[#FF0000] to-black rounded-lg overflow-hidden shadow-2xl relative">
                   <img 
                     src={currentSong.coverUrl} 
                     alt={currentSong.title} 
@@ -2911,7 +3012,7 @@ export default function App() {
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                      <Heart 
-                       className={cn("w-5 h-5 transition-colors cursor-pointer", favorites.has(currentSong.id) ? "text-[#1DB954] fill-current" : "text-white/80 hover:text-[#1DB954]")} 
+                       className={cn("w-5 h-5 transition-colors cursor-pointer", favorites.has(currentSong.id) ? "text-[#FF0000] fill-current" : "text-white/80 hover:text-[#FF0000]")} 
                        onClick={(e) => {
                          e.stopPropagation();
                          toggleFavorite(currentSong.id);
@@ -2921,9 +3022,9 @@ export default function App() {
                 </div>
                 <div className="overflow-hidden min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-black truncate uppercase tracking-tight cursor-pointer hover:text-[#1DB954] transition-colors">{currentSong.title}</p>
+                    <p className="text-sm font-black truncate uppercase tracking-tight cursor-pointer hover:text-[#FF0000] transition-colors">{currentSong.title}</p>
                     {downloadedSongs.has(currentSong.id) && (
-                        <CheckCircle2 className="w-3 h-3 text-[#1DB954]" />
+                        <CheckCircle2 className="w-3 h-3 text-[#FF0000]" />
                     )}
                   </div>
                   <p className="text-[10px] text-white/50 uppercase tracking-widest truncate">
@@ -2936,15 +3037,18 @@ export default function App() {
         </div>
 
         {/* Player Controls */}
-        <div className="flex flex-col items-center gap-2 flex-1 max-w-lg">
-          <div className="flex items-center gap-8">
+        <div className="flex flex-col items-center gap-1 flex-1 max-w-lg relative">
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-0 invisible md:visible">
+            <Visualizer isPlaying={isPlaying} />
+          </div>
+          <div className="flex items-center gap-8 relative z-10">
             <Shuffle 
                 onClick={toggleShuffle}
-                className={cn("w-4 h-4 cursor-pointer transition-colors", isShuffleOn ? "text-[#1DB954]" : "text-white/30 hover:text-white")} 
+                className={cn("w-4 h-4 cursor-pointer transition-colors", isShuffleOn ? "text-[#FF0000]" : "text-white/30 hover:text-white")} 
             />
             <SkipBack 
                 onClick={playPrevious}
-                className="w-6 h-6 text-white hover:text-[#1DB954] cursor-pointer fill-current transition-colors" 
+                className="w-6 h-6 text-white hover:text-[#FF0000] cursor-pointer fill-current transition-colors" 
             />
             <button 
               onClick={togglePlay}
@@ -2961,18 +3065,18 @@ export default function App() {
             </button>
             <SkipForward 
                 onClick={() => playNext(true)}
-                className="w-6 h-6 text-white hover:text-[#1DB954] cursor-pointer fill-current transition-colors" 
+                className="w-6 h-6 text-white hover:text-[#FF0000] cursor-pointer fill-current transition-colors" 
             />
             <div className="relative group/repeat">
                 <Repeat 
                     onClick={toggleRepeat}
                     className={cn(
                         "w-4 h-4 cursor-pointer transition-colors", 
-                        repeatMode !== 'off' ? "text-[#1DB954]" : "text-white/30 hover:text-white"
+                        repeatMode !== 'off' ? "text-[#FF0000]" : "text-white/30 hover:text-white"
                     )} 
                 />
                 {repeatMode === 'one' && (
-                    <div className="absolute -top-1.5 -right-1.5 bg-[#1DB954] text-black text-[7px] font-black w-3 h-3 rounded-full flex items-center justify-center pointer-events-none">
+                    <div className="absolute -top-1.5 -right-1.5 bg-[#FF0000] text-black text-[7px] font-black w-3 h-3 rounded-full flex items-center justify-center pointer-events-none">
                         1
                     </div>
                 )}
@@ -2991,7 +3095,7 @@ export default function App() {
               }}
             >
               <motion.div 
-                className="h-full bg-[#1DB954] relative" 
+                className="h-full bg-[#FF0000] relative" 
                 animate={{ width: `${(progress / (currentSong?.duration || 1)) * 100}%` }}
                 transition={{ type: "tween", duration: 0.1 }}
               >
@@ -3009,7 +3113,7 @@ export default function App() {
               onClick={() => setShowSleepTimerMenu(!showSleepTimerMenu)}
               className={cn(
                 "flex flex-col items-center gap-0.5 transition-all group",
-                sleepTimer !== null ? "text-[#1DB954]" : "text-white/40 hover:text-white"
+                sleepTimer !== null ? "text-[#FF0000]" : "text-white/40 hover:text-white"
               )}
             >
               <Clock className="w-5 h-5" />
@@ -3028,7 +3132,7 @@ export default function App() {
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   className="absolute bottom-full right-0 mb-4 w-48 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-2 z-50 backdrop-blur-xl"
                 >
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#1DB954] p-2 mb-1">Sleep Timer</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#FF0000] p-2 mb-1">Sleep Timer</p>
                   {[5, 15, 30, 45, 60].map(mins => (
                     <button 
                       key={mins}
@@ -3036,7 +3140,7 @@ export default function App() {
                       className="w-full text-left px-3 py-2 text-xs font-bold hover:bg-white/5 rounded-lg transition-colors flex justify-between group"
                     >
                       <span>{mins} minutes</span>
-                      {sleepTimer === mins * 60 && <div className="w-1.5 h-1.5 bg-[#1DB954] rounded-full self-center" />}
+                      {sleepTimer === mins * 60 && <div className="w-1.5 h-1.5 bg-[#FF0000] rounded-full self-center" />}
                     </button>
                   ))}
                   <div className="px-2 pb-2 mt-1 border-t border-white/5 pt-2">
@@ -3045,7 +3149,7 @@ export default function App() {
                       <input 
                         type="number"
                         placeholder="Min"
-                        className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-[#1DB954] transition-colors"
+                        className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-[#FF0000] transition-colors"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             const val = parseInt((e.target as HTMLInputElement).value);
@@ -3059,7 +3163,7 @@ export default function App() {
                           const val = parseInt(input.value);
                           if (!isNaN(val) && val > 0) setTimer(val);
                         }}
-                        className="bg-[#1DB954] text-black px-2 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
+                        className="bg-[#FF0000] text-black px-2 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
                       >
                         Set
                       </button>
@@ -3081,7 +3185,7 @@ export default function App() {
                 onClick={() => setShowEqualizer(!showEqualizer)}
                 className={cn(
                     "p-2 rounded-full transition-all",
-                    showEqualizer ? "bg-[#1DB954] text-black" : "text-white/40 hover:text-white"
+                    showEqualizer ? "bg-[#FF0000] text-black" : "text-white/40 hover:text-white"
                 )}
                 title="Equalizer"
             >
@@ -3089,7 +3193,7 @@ export default function App() {
             </button>
           <button 
             onClick={handleToggleLyrics}
-            className={cn("transition-colors", showLyrics ? "text-[#1DB954]" : "text-white/40 hover:text-white")}
+            className={cn("transition-colors", showLyrics ? "text-[#FF0000]" : "text-white/40 hover:text-white")}
           >
             <Languages className="w-5 h-5" />
           </button>
@@ -3105,7 +3209,7 @@ export default function App() {
                     setShowAiGenerator(false);
                 }
             }}
-            className={cn("transition-colors", showLyricsQueue ? "text-[#1DB954]" : "text-white/40 hover:text-white")}
+            className={cn("transition-colors", showLyricsQueue ? "text-[#FF0000]" : "text-white/40 hover:text-white")}
           >
             <ListMusic className="w-5 h-5" />
           </button>
@@ -3120,7 +3224,7 @@ export default function App() {
               }}
             >
               <motion.div 
-                className="h-full bg-white group-hover/bar:bg-[#1DB954] relative" 
+                className="h-full bg-white group-hover/bar:bg-[#FF0000] relative" 
                 animate={{ width: `${volume * 100}%` }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
@@ -3191,15 +3295,23 @@ function SongCard({ song, isActive, onPlay, onViewDetail, isOffline, onToggleOff
 }) {
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
 
+  const isAvailable = navigator.onLine || isDownloaded;
+
   return (
     <motion.div 
       whileHover={{ y: -4 }}
       className={cn(
         "bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-all group cursor-pointer relative shadow-lg",
-        isActive && "bg-[#282828]"
+        isActive && "bg-[#282828]",
+        !isAvailable && "opacity-40 grayscale pointer-events-none"
       )}
       onClick={onViewDetail}
     >
+      {!isAvailable && (
+          <div className="absolute top-2 right-2 z-50">
+              <div className="bg-red-500 text-[8px] font-black uppercase tracking-tightest px-2 py-0.5 rounded-full text-white shadow-lg">Offline Only</div>
+          </div>
+      )}
       <div className="relative aspect-square mb-4 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
         <img 
           src={song.coverUrl} 
@@ -3214,8 +3326,8 @@ function SongCard({ song, isActive, onPlay, onViewDetail, isOffline, onToggleOff
                 className={cn(
                     "p-1.5 rounded-full backdrop-blur-md transition-all relative overflow-hidden",
                     downloadProgress !== undefined ? "bg-white/10 text-white" :
-                    isDownloaded ? "bg-[#1DB954] text-black shadow-[0_0_10px_#1DB954]" :
-                    isOffline ? "bg-[#1DB954] text-black" : "bg-black/40 text-white/40 hover:text-white"
+                    isDownloaded ? "bg-[#FF0000] text-black shadow-[0_0_10px_#FF0000]" :
+                    isOffline ? "bg-[#FF0000] text-black" : "bg-black/40 text-white/40 hover:text-white"
                 )}
                 onClick={(e) => {
                     e.stopPropagation();
@@ -3241,7 +3353,7 @@ function SongCard({ song, isActive, onPlay, onViewDetail, isOffline, onToggleOff
                 
                 {downloadProgress !== undefined && (
                     <div 
-                        className="absolute bottom-0 left-0 h-0.5 bg-[#1DB954] transition-all" 
+                        className="absolute bottom-0 left-0 h-0.5 bg-[#FF0000] transition-all" 
                         style={{ width: `${downloadProgress}%` }}
                     />
                 )}
@@ -3250,7 +3362,7 @@ function SongCard({ song, isActive, onPlay, onViewDetail, isOffline, onToggleOff
             <button 
                 className={cn(
                     "p-1.5 rounded-full backdrop-blur-md transition-all",
-                    isInLyricsQueue ? "bg-[#1DB954] text-black" : "bg-black/40 text-white/40 hover:text-white"
+                    isInLyricsQueue ? "bg-[#FF0000] text-black" : "bg-black/40 text-white/40 hover:text-white"
                 )}
                 onClick={(e) => {
                     e.stopPropagation();
@@ -3264,7 +3376,7 @@ function SongCard({ song, isActive, onPlay, onViewDetail, isOffline, onToggleOff
             <button 
                 className={cn(
                     "p-1.5 rounded-full backdrop-blur-md transition-all",
-                    isLiked ? "bg-[#1DB954] text-black" : "bg-black/40 text-white/40 hover:text-white"
+                    isLiked ? "bg-[#FF0000] text-black" : "bg-black/40 text-white/40 hover:text-white"
                 )}
                 onClick={(e) => {
                     e.stopPropagation();
@@ -3330,7 +3442,7 @@ function SongCard({ song, isActive, onPlay, onViewDetail, isOffline, onToggleOff
             )}
 
             <button 
-                className="p-1.5 rounded-full bg-black/40 text-white/40 hover:text-[#1DB954] hover:bg-black/60 backdrop-blur-md transition-all"
+                className="p-1.5 rounded-full bg-black/40 text-white/40 hover:text-[#FF0000] hover:bg-black/60 backdrop-blur-md transition-all"
                 onClick={(e) => {
                     e.stopPropagation();
                     onViewDetail?.();
@@ -3347,7 +3459,7 @@ function SongCard({ song, isActive, onPlay, onViewDetail, isOffline, onToggleOff
             onPlay();
           }}
           className={cn(
-            "absolute bottom-2 right-2 w-12 h-12 bg-[#1DB954] rounded-full shadow-[0_8px_16px_rgba(0,0,0,0.3)] flex items-center justify-center transition-all duration-300 opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 hover:scale-105 active:scale-95",
+            "absolute bottom-2 right-2 w-12 h-12 bg-[#FF0000] rounded-full shadow-[0_8px_16px_rgba(0,0,0,0.3)] flex items-center justify-center transition-all duration-300 opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 hover:scale-105 active:scale-95",
             isActive && "opacity-100 translate-y-0"
           )}
         >
@@ -3359,13 +3471,13 @@ function SongCard({ song, isActive, onPlay, onViewDetail, isOffline, onToggleOff
             <h3 className="font-bold text-base mb-1 line-clamp-1 text-white uppercase tracking-tight italic">{song.title}</h3>
             <p className="text-zinc-500 text-xs line-clamp-1 leading-tight uppercase font-bold tracking-wider">{song.artist}</p>
             {song.reason && (
-              <p className="text-[9px] text-[#1DB954] mt-1 italic font-bold uppercase tracking-tight line-clamp-2 leading-none opacity-80 group-hover:opacity-100 transition-opacity">
+              <p className="text-[9px] text-[#FF0000] mt-1 italic font-bold uppercase tracking-tight line-clamp-2 leading-none opacity-80 group-hover:opacity-100 transition-opacity">
                 // {song.reason}
               </p>
             )}
         </div>
         {isOffline && (
-            <div className="w-1.5 h-1.5 rounded-full bg-[#1DB954] mt-2 shrink-0 shadow-[0_0_5px_#1DB954]" title="Available offline" />
+            <div className="w-1.5 h-1.5 rounded-full bg-[#FF0000] mt-2 shrink-0 shadow-[0_0_5px_#FF0000]" title="Available offline" />
         )}
       </div>
     </motion.div>
@@ -3390,15 +3502,15 @@ function EqualizerUI({ levels, setLevels, presets, setPresets, onClose }: { leve
       exit={{ y: 20, opacity: 0, scale: 0.95 }}
       className="fixed bottom-28 right-8 bg-zinc-900/90 backdrop-blur-2xl p-8 rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] border border-white/10 z-[100] w-80 overflow-hidden"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1DB954]/5 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#FF0000]/5 to-transparent pointer-events-none" />
       
       <div className="flex items-center justify-between mb-8 relative z-10">
         <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#1DB954]/10 flex items-center justify-center overflow-hidden">
-                <Sliders className="w-4 h-4 text-[#1DB954]" />
+            <div className="w-8 h-8 rounded-lg bg-[#FF0000]/10 flex items-center justify-center overflow-hidden">
+                <Sliders className="w-4 h-4 text-[#FF0000]" />
             </div>
             <div>
-                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#1DB954]">Sonic EQ</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#FF0000]">Sonic EQ</h3>
                 <p className="text-[8px] text-white/30 font-bold uppercase tracking-widest">Mastering Mode</p>
             </div>
         </div>
@@ -3420,7 +3532,7 @@ function EqualizerUI({ levels, setLevels, presets, setPresets, onClose }: { leve
                     className={cn(
                         "px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border",
                         JSON.stringify(levels) === JSON.stringify(p.levels) 
-                            ? "bg-[#1DB954] text-black border-[#1DB954]" 
+                            ? "bg-[#FF0000] text-black border-[#FF0000]" 
                             : "bg-white/5 text-white/40 border-white/10 hover:border-white/30 hover:text-white"
                     )}
                 >
@@ -3448,11 +3560,11 @@ function EqualizerUI({ levels, setLevels, presets, setPresets, onClose }: { leve
                             value={newPresetName}
                             onChange={(e) => setNewPresetName(e.target.value)}
                             placeholder="Preset Name..."
-                            className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-white focus:outline-none focus:border-[#1DB954] transition-colors"
+                            className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-[10px] font-bold text-white focus:outline-none focus:border-[#FF0000] transition-colors"
                         />
                         <button 
                             onClick={handleSavePreset}
-                            className="bg-[#1DB954] text-black px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
+                            className="bg-[#FF0000] text-black px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
                         >
                             Save
                         </button>
@@ -3467,7 +3579,7 @@ function EqualizerUI({ levels, setLevels, presets, setPresets, onClose }: { leve
           <div key={band} className="flex flex-col items-center flex-1 gap-4 h-full pt-4">
             <div className="relative h-full w-2 bg-white/5 rounded-full overflow-hidden group">
               <motion.div 
-                className="absolute bottom-0 w-full bg-gradient-to-t from-[#1DB954] to-[#1ed760] shadow-[0_0_15px_rgba(29,185,84,0.4)]"
+                className="absolute bottom-0 w-full bg-gradient-to-t from-[#FF0000] to-[#ff3333] shadow-[0_0_15px_rgba(255,0,0,0.4)]"
                 animate={{ height: `${val}%` }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
@@ -3490,16 +3602,87 @@ function EqualizerUI({ levels, setLevels, presets, setPresets, onClose }: { leve
         <div className="flex items-center justify-between">
             <button 
                 onClick={() => setLevels({ bass: 50, mid: 50, treble: 50, gain: 50 })}
-                className="text-[9px] font-black uppercase tracking-widest text-white/20 hover:text-white hover:bg-[#1DB954]/10 px-3 py-1.5 rounded-lg transition-all"
+                className="text-[9px] font-black uppercase tracking-widest text-white/20 hover:text-white hover:bg-[#FF0000]/10 px-3 py-1.5 rounded-lg transition-all"
             >
                 Reset Flat
             </button>
             <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#1DB954] shadow-[0_0_8px_rgba(29,185,84,0.6)]" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#1DB954]">Neural Engine Active</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#FF0000] shadow-[0_0_8px_rgba(255,0,0,0.6)]" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#FF0000]">Neural Engine Active</span>
             </div>
         </div>
       </div>
     </motion.div>
   );
 }
+
+function Visualizer({ isPlaying }: { isPlaying: boolean }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const animationRef = useRef<number | null>(null);
+  
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+  
+      const bars = 25;
+      const barWidth = 3;
+      const barGap = 2;
+      const heights = new Array(bars).fill(2);
+      const targetHeights = new Array(bars).fill(2);
+  
+      const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+        gradient.addColorStop(0, '#FF0000');
+        gradient.addColorStop(1, '#ff3333');
+  
+        for (let i = 0; i < bars; i++) {
+          if (isPlaying) {
+            if (Math.random() > 0.88) {
+              targetHeights[i] = Math.random() * canvas.height * 0.9 + 2;
+            }
+          } else {
+            targetHeights[i] = 1;
+          }
+  
+          const speed = isPlaying ? 0.15 : 0.05;
+          heights[i] += (targetHeights[i] - heights[i]) * speed;
+  
+          const x = i * (barWidth + barGap);
+          const y = canvas.height - heights[i];
+          
+          ctx.fillStyle = gradient;
+          // @ts-ignore
+          if (ctx.roundRect) {
+              // @ts-ignore
+              ctx.roundRect(x, y, barWidth, heights[i], [2, 2, 0, 0]);
+          } else {
+              ctx.rect(x, y, barWidth, heights[i]);
+          }
+          ctx.fill();
+        }
+  
+        animationRef.current = requestAnimationFrame(animate);
+      };
+  
+      animate();
+  
+      return () => {
+        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      };
+    }, [isPlaying]);
+  
+    return (
+      <div className="flex items-end justify-center h-8 w-[125px]">
+        <canvas 
+          ref={canvasRef} 
+          width={25 * (3 + 2)} 
+          height={32} 
+          className="opacity-80"
+        />
+      </div>
+    );
+  }
