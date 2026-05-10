@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Home, Search, Library, PlusSquare, Heart, Download, Play, SkipBack, SkipForward, Repeat, Shuffle, Volume2, ListMusic, User, MoreHorizontal, Clock, Sparkles, Loader2, Languages, X, CheckCircle2, Wand2, Sliders, LogOut, Camera, Save, Share2, Gift } from 'lucide-react';
+import { Home, Search, Library, PlusSquare, Heart, Download, Play, SkipBack, SkipForward, Repeat, Shuffle, Volume2, ListMusic, User, MoreHorizontal, Clock, Sparkles, Loader2, Languages, X, CheckCircle2, Wand2, Sliders, LogOut, Camera, Save, Share2, Gift, Instagram, Facebook } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import ReactPlayer from 'react-player';
 const Player = ReactPlayer as any;
@@ -361,6 +361,9 @@ const POPULAR_ARTISTS = [
 export default function App() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    return localStorage.getItem('pata_vinnu_welcome_seen') !== 'true';
+  });
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
 
@@ -731,7 +734,7 @@ export default function App() {
     return saved ? JSON.parse(saved) : [
       { name: 'Flat', levels: { bass: 50, mid: 50, treble: 50, gain: 50 } },
       { name: 'Bass Boost', levels: { bass: 85, mid: 45, treble: 40, gain: 55 } },
-      { name: 'AuraX Crystal', levels: { bass: 40, mid: 60, treble: 90, gain: 50 } }
+      { name: 'Vinnu Crystal', levels: { bass: 40, mid: 60, treble: 90, gain: 50 } }
     ];
   });
 
@@ -942,7 +945,7 @@ export default function App() {
 
   const [showAuraX, setShowAuraX] = useState(false);
   const [auraXMessages, setAuraXMessages] = useState<{ role: 'user' | 'auraX', text: string }[]>([
-    { role: 'auraX', text: "Hello! I'm AuraX, your musical co-pilot. I can tell you about the current track, suggest what to listen to next, or just talk music. What's on your mind?" }
+    { role: 'auraX', text: "Hello! I'm Pata Vinnu AI, your musical co-pilot. I can tell you about the current track, suggest what to listen to next, or just talk music. What's on your mind?" }
   ]);
   const [auraXInput, setAuraXInput] = useState("");
   const [isAuraXLoading, setIsAuraXLoading] = useState(false);
@@ -1056,208 +1059,293 @@ export default function App() {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="h-screen bg-[#050505] flex items-center justify-center">
-        <Loader2 className="w-10 h-10 text-[#FF0000] animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="h-screen bg-[#050505] flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Atmospheric background */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF0000]/20 rounded-full blur-[120px] animate-pulse" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/20 rounded-full blur-[120px] animate-pulse delay-1000" />
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="z-10 text-center px-6"
-        >
-          <div className="flex items-center justify-center mb-8">
-            <div className="w-16 h-16 bg-[#FF0000] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,0,0,0.3)]">
-              <Play className="w-8 h-8 text-black fill-current ml-1" />
-            </div>
-          </div>
-          
-          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">AuraX</h1>
-          <p className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-6">Founded by Roshan.R.Soyam</p>
-          <p className="text-zinc-400 text-lg mb-12 max-w-md mx-auto">
-            Your personal AI-powered music companion. Listen, discover, and create with the power of AuraX.
-          </p>
-
-          <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
-            <button
-              id="google-login-btn"
-              onClick={signInWithGoogle}
-              className="group relative flex items-center justify-center gap-4 bg-white text-black font-bold py-4 px-8 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_20px_rgba(255,255,255,0.1)] overflow-hidden"
-            >
-              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 z-10" />
-              <span className="z-10">Continue with Google</span>
-            </button>
-
-            <button
-              onClick={signInWithApple}
-              className="group relative flex items-center justify-center gap-4 bg-black text-white border border-white/20 font-bold py-4 px-8 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)] overflow-hidden"
-            >
-              <svg className="w-5 h-5 z-10 fill-current" viewBox="0 0 384 512">
-                <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
-              </svg>
-              <span className="z-10">Continue with Apple</span>
-            </button>
-
-            <div className="flex justify-center gap-6 mt-4">
-               <button title="Instagram (Placeholder)" className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity">
-                  <span className="text-white text-xs font-bold">IG</span>
-               </button>
-               <button title="Facebook (Placeholder)" className="w-10 h-10 rounded-full bg-[#1877F2] flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity">
-                  <span className="text-white text-xs font-bold">FB</span>
-               </button>
-            </div>
-          </div>
-          
-          <p className="mt-8 text-zinc-600 text-xs uppercase tracking-widest font-semibold">
-            Powered by Gemini & Firebase
-          </p>
-        </motion.div>
-
-        {/* Floating cards for visual interest */}
-        <div className="absolute top-1/4 -right-12 opacity-20 rotate-12 hidden lg:block">
-            <div className="w-48 h-48 bg-zinc-800 rounded-xl border border-zinc-700 shadow-2xl" />
-        </div>
-        <div className="absolute bottom-1/4 -left-12 opacity-20 -rotate-12 hidden lg:block">
-            <div className="w-48 h-48 bg-zinc-800 rounded-xl border border-zinc-700 shadow-2xl" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!onboardingComplete) {
-    return (
-      <div className="h-screen bg-[#050505] flex flex-col items-center justify-center relative overflow-hidden p-6 selection:bg-[#FF0000]/30">
-        <div className="absolute top-8 right-8 z-20">
-          <button 
-            onClick={handleSaveArtists}
-            className="text-zinc-500 hover:text-white transition-colors flex items-center gap-2 group text-sm font-bold uppercase tracking-widest"
-          >
-            Skip
-            <SkipForward className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="z-10 text-center max-w-4xl w-full"
-        >
-          <div className="flex items-center justify-center mb-8">
-            <div className="p-4 bg-[#FF0000]/10 rounded-full">
-              <Sparkles className="w-12 h-12 text-[#FF0000] animate-pulse" />
-            </div>
-          </div>
-          
-          <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">Choose your favorite artists</h1>
-          <p className="text-zinc-400 text-lg mb-4 max-w-md mx-auto">
-            AuraX uses this to understand your vibe and recommend the perfect tracks for you.
-          </p>
-          <div className="mb-12">
-            <p className={cn(
-                "text-xs font-bold uppercase tracking-[0.2em] transition-colors",
-                selectedArtists.length >= 3 ? "text-[#FF0000]" : "text-orange-500"
-            )}>
-                {selectedArtists.length < 3 
-                    ? `Select at least ${3 - selectedArtists.length} more artist${3 - selectedArtists.length === 1 ? '' : 's'}` 
-                    : "Ready to groove!"}
-            </p>
-            <div className="w-48 h-1 bg-white/10 mx-auto mt-4 rounded-full overflow-hidden">
-                <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.min((selectedArtists.length / 3) * 100, 100)}%` }}
-                    className="h-full bg-[#FF0000]"
-                />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-12 max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar p-1">
-            {POPULAR_ARTISTS.map(artist => (
-              <motion.button
-                key={artist.name}
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toggleArtist(artist.name)}
-                className={cn(
-                  "flex flex-col items-center gap-4 p-4 rounded-3xl transition-all duration-300 border-2 group relative",
-                  selectedArtists.includes(artist.name) 
-                    ? "bg-[#FF0000]/10 border-[#FF0000] shadow-[0_0_30px_rgba(255,0,0,0.15)]" 
-                    : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
-                )}
-              >
-                <div className="relative w-24 h-24 sm:w-32 sm:h-32">
-                  <img 
-                    src={artist.image} 
-                    alt={artist.name}
-                    className="w-full h-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110 shadow-2xl grayscale group-hover:grayscale-0"
-                  />
-                  {selectedArtists.includes(artist.name) && (
-                    <motion.div 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 bg-[#FF0000] p-1.5 rounded-full text-black shadow-lg"
-                    >
-                      <CheckCircle2 className="w-4 h-4 stroke-[3]" />
-                    </motion.div>
-                  )}
-                  <div className="absolute inset-0 rounded-full border-4 border-[#FF0000] opacity-0 group-hover:opacity-20 transition-opacity scale-110" />
-                </div>
-                <div className="text-center w-full">
-                  <p className={cn(
-                    "font-black text-sm transition-colors tracking-tight",
-                    selectedArtists.includes(artist.name) ? "text-[#FF0000]" : "text-white"
-                  )}>{artist.name}</p>
-                  <p className="text-[10px] uppercase font-black tracking-widest text-zinc-500 mt-1 whitespace-nowrap overflow-hidden text-ellipsis px-2">
-                    {artist.roles.join(" • ")}
-                  </p>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-
-          <button
-            onClick={handleSaveArtists}
-            disabled={selectedArtists.length < 3}
-            className="group relative flex items-center justify-center gap-4 bg-white text-black font-bold py-4 px-12 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_20px_rgba(255,255,255,0.1)] disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-zinc-100 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-            <span className="z-10">Start Listening</span>
-            <Play className="w-4 h-4 z-10 fill-current" />
-          </button>
-        </motion.div>
-
-        {/* Decorative background blur */}
-        <div className="absolute top-1/2 left-0 w-[50%] h-[50%] bg-[#FF0000]/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[120px] translate-x-1/4 translate-y-1/4 animate-pulse delay-1000" />
-
-        {/* Lower Right Continue Button */}
-        <div className="absolute bottom-8 right-8 z-20">
-          <button 
-            onClick={handleSaveArtists}
-            disabled={selectedArtists.length < 3}
-            className="group flex items-center gap-2 bg-[#FF0000] text-black font-bold py-3 px-6 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_15px_rgba(255,0,0,0.3)] disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed uppercase text-xs tracking-widest"
-          >
-            Continue
-            <CheckCircle2 className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-screen bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden selection:bg-[#FF0000]/30">
+    <AnimatePresence mode="wait">
+      {loading ? (
+        <motion.div 
+          key="loading"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="h-screen bg-[#050505] flex items-center justify-center font-sans"
+        >
+          <Loader2 className="w-10 h-10 text-[#FF0000] animate-spin" />
+        </motion.div>
+      ) : showWelcome ? (
+        <motion.div 
+          key="welcome"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.5, ease: [0.165, 0.84, 0.44, 1] }}
+          className="h-screen bg-[#050505] flex flex-col items-center justify-center relative overflow-hidden p-6 font-sans"
+        >
+          {/* Background Effects */}
+          <div className="absolute inset-0 z-0">
+            <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#FF0000]/10 rounded-full blur-[140px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/5 rounded-full blur-[140px] animate-pulse delay-700" />
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="z-10 text-center max-w-2xl"
+          >
+            <div className="flex items-center justify-center mb-10">
+              <div className="w-24 h-24 bg-[#FF0000] rounded-3xl flex items-center justify-center shadow-[0_0_50px_rgba(255,0,0,0.4)] rotate-12 hover:rotate-0 transition-transform duration-500">
+                <Play className="w-12 h-12 text-black fill-current ml-1" />
+              </div>
+            </div>
+            
+            <h1 className="text-6xl font-black text-white mb-2 tracking-tighter italic uppercase">pata vinnu</h1>
+            <p className="text-[#FF0000] text-[10px] font-black uppercase tracking-[0.4em] mb-12">Founded by Roshan.R.Soyam</p>
+
+            <div className="grid grid-cols-2 gap-4 mb-16 px-4 text-zinc-300">
+              {[
+                { icon: <Sparkles className="w-5 h-5" />, title: "Vinnu AI", desc: "Intelligent co-pilot for music discovery" },
+                { icon: <Volume2 className="w-5 h-5" />, title: "Hi-Fi Sound", desc: "Studio quality audio at your fingertips" },
+                { icon: <ListMusic className="w-5 h-5" />, title: "Smart Playlists", desc: "Vibe-synced real-time generation" },
+                { icon: <Languages className="w-5 h-5" />, title: "Live Lyrics", desc: "Real-time sync with translation" }
+              ].map((f, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + (i * 0.1) }}
+                  className="bg-white/5 border border-white/10 p-4 rounded-2xl text-left hover:bg-white/10 transition-colors"
+                >
+                  <div className="text-[#FF0000] mb-2">{f.icon}</div>
+                  <h3 className="text-white text-xs font-black uppercase tracking-widest">{f.title}</h3>
+                  <p className="text-zinc-500 text-[10px] mt-1">{f.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => {
+                setShowWelcome(false);
+                localStorage.setItem('pata_vinnu_welcome_seen', 'true');
+              }}
+              className="group relative inline-flex items-center gap-3 bg-[#FF0000] text-black font-black uppercase tracking-[0.2em] py-5 px-12 rounded-full hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_10px_30px_rgba(255,0,0,0.3)]"
+            >
+              Continue
+              <SkipForward className="w-5 h-5" />
+            </button>
+          </motion.div>
+        </motion.div>
+      ) : !user ? (
+        <motion.div 
+          key="login"
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.5, ease: [0.165, 0.84, 0.44, 1] }}
+          className="h-screen bg-[#050505] flex flex-col items-center justify-center relative overflow-hidden font-sans"
+        >
+          {/* Atmospheric background */}
+          <div className="absolute inset-0 z-0">
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF0000]/20 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/20 rounded-full blur-[120px] animate-pulse delay-1000" />
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="z-10 text-center px-6"
+          >
+            <div className="flex items-center justify-center mb-8">
+              <div className="w-16 h-16 bg-[#FF0000] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,0,0,0.3)]">
+                <Play className="w-8 h-8 text-black fill-current ml-1" />
+              </div>
+            </div>
+            
+            <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">pata vinnu</h1>
+            <p className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-6">Founded by Roshan.R.Soyam</p>
+            <p className="text-zinc-400 text-lg mb-12 max-w-md mx-auto">
+              Your personal AI-powered music companion. Listen, discover, and create with the power of pata vinnu.
+            </p>
+
+            <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
+              <button
+                id="google-login-btn"
+                onClick={signInWithGoogle}
+                className="group relative flex items-center justify-center gap-4 bg-white text-black font-bold py-4 px-8 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_20px_rgba(255,255,255,0.1)] overflow-hidden"
+              >
+                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 z-10" />
+                <span className="z-10">Continue with Google</span>
+              </button>
+
+              <button
+                onClick={signInWithApple}
+                className="group relative flex items-center justify-center gap-4 bg-black text-white border border-white/20 font-bold py-4 px-8 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)] overflow-hidden"
+              >
+                <svg className="w-5 h-5 z-10 fill-current" viewBox="0 0 384 512">
+                  <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                </svg>
+                <span className="z-10">Continue with Apple</span>
+              </button>
+
+              <div className="flex justify-center gap-6 mt-6">
+                <button 
+                  onClick={() => window.open('https://instagram.com', '_blank')}
+                  title="Follow us on Instagram" 
+                  className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95"
+                >
+                  <Instagram className="w-6 h-6 text-white" />
+                </button>
+                <button 
+                  onClick={() => window.open('https://facebook.com', '_blank')}
+                  title="Follow us on Facebook" 
+                  className="w-12 h-12 rounded-full bg-[#1877F2] flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95"
+                >
+                  <Facebook className="w-6 h-6 text-white" />
+                </button>
+              </div>
+            </div>
+            
+            <p className="mt-8 text-zinc-600 text-xs uppercase tracking-widest font-semibold">
+              Powered by Gemini & Firebase
+            </p>
+          </motion.div>
+
+          {/* Floating cards for visual interest */}
+          <div className="absolute top-1/4 -right-12 opacity-20 rotate-12 hidden lg:block">
+              <div className="w-48 h-48 bg-zinc-800 rounded-xl border border-zinc-700 shadow-2xl" />
+          </div>
+          <div className="absolute bottom-1/4 -left-12 opacity-20 -rotate-12 hidden lg:block">
+              <div className="w-48 h-48 bg-zinc-800 rounded-xl border border-zinc-700 shadow-2xl" />
+          </div>
+        </motion.div>
+      ) : !onboardingComplete ? (
+        <motion.div 
+          key="onboarding"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="h-screen bg-[#050505] flex flex-col items-center justify-center relative overflow-hidden p-6 selection:bg-[#FF0000]/30 font-sans"
+        >
+          <div className="absolute top-8 right-8 z-20">
+            <button 
+              onClick={handleSaveArtists}
+              className="text-zinc-500 hover:text-white transition-colors flex items-center gap-2 group text-sm font-bold uppercase tracking-widest"
+            >
+              Skip
+              <SkipForward className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="z-10 text-center max-w-4xl w-full"
+          >
+            <div className="flex items-center justify-center mb-8">
+              <div className="p-4 bg-[#FF0000]/10 rounded-full">
+                <Sparkles className="w-12 h-12 text-[#FF0000] animate-pulse" />
+              </div>
+            </div>
+            
+            <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">Choose your favorite artists</h1>
+            <p className="text-zinc-400 text-lg mb-4 max-w-md mx-auto">
+              pata vinnu uses this to understand your vibe and recommend the perfect tracks for you.
+            </p>
+            <div className="mb-12">
+              <p className={cn(
+                  "text-xs font-bold uppercase tracking-[0.2em] transition-colors",
+                  selectedArtists.length >= 3 ? "text-[#FF0000]" : "text-orange-500"
+              )}>
+                  {selectedArtists.length < 3 
+                      ? `Select at least ${3 - selectedArtists.length} more artist${3 - selectedArtists.length === 1 ? '' : 's'}` 
+                      : "Ready to groove!"}
+              </p>
+              <div className="w-48 h-1 bg-white/10 mx-auto mt-4 rounded-full overflow-hidden">
+                  <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min((selectedArtists.length / 3) * 100, 100)}%` }}
+                      className="h-full bg-[#FF0000]"
+                  />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-12 max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar p-1">
+              {POPULAR_ARTISTS.map(artist => (
+                <motion.button
+                  key={artist.name}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => toggleArtist(artist.name)}
+                  className={cn(
+                    "flex flex-col items-center gap-4 p-4 rounded-3xl transition-all duration-300 border-2 group relative",
+                    selectedArtists.includes(artist.name) 
+                      ? "bg-[#FF0000]/10 border-[#FF0000] shadow-[0_0_30px_rgba(255,0,0,0.15)]" 
+                      : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
+                  )}
+                >
+                  <div className="relative w-24 h-24 sm:w-32 sm:h-32">
+                    <img 
+                      src={artist.image} 
+                      alt={artist.name}
+                      className="w-full h-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110 shadow-2xl grayscale group-hover:grayscale-0"
+                    />
+                    {selectedArtists.includes(artist.name) && (
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 bg-[#FF0000] p-1.5 rounded-full text-black shadow-lg"
+                      >
+                        <CheckCircle2 className="w-4 h-4 stroke-[3]" />
+                      </motion.div>
+                    )}
+                    <div className="absolute inset-0 rounded-full border-4 border-[#FF0000] opacity-0 group-hover:opacity-20 transition-opacity scale-110" />
+                  </div>
+                  <div className="text-center w-full">
+                    <p className={cn(
+                      "font-black text-sm transition-colors tracking-tight",
+                      selectedArtists.includes(artist.name) ? "text-[#FF0000]" : "text-white"
+                    )}>{artist.name}</p>
+                    <p className="text-[10px] uppercase font-black tracking-widest text-zinc-500 mt-1 whitespace-nowrap overflow-hidden text-ellipsis px-2 text-zinc-300">
+                      {artist.roles.join(" • ")}
+                    </p>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleSaveArtists}
+              disabled={selectedArtists.length < 3}
+              className="group relative flex items-center justify-center gap-4 bg-white text-black font-bold py-4 px-12 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_20px_rgba(255,255,255,0.1)] disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-zinc-100 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              <span className="z-10">Start Listening</span>
+              <Play className="w-4 h-4 z-10 fill-current" />
+            </button>
+          </motion.div>
+
+          {/* Decorative background blur */}
+          <div className="absolute top-1/2 left-0 w-[50%] h-[50%] bg-[#FF0000]/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+          <div className="absolute bottom-0 right-0 w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[120px] translate-x-1/4 translate-y-1/4 animate-pulse delay-1000" />
+
+          {/* Lower Right Continue Button */}
+          <div className="absolute bottom-8 right-8 z-20">
+            <button 
+              onClick={handleSaveArtists}
+              disabled={selectedArtists.length < 3}
+              className="group flex items-center gap-2 bg-[#FF0000] text-black font-bold py-3 px-6 rounded-full hover:scale-105 transition-all duration-300 shadow-[0_4px_15px_rgba(255,0,0,0.3)] disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed uppercase text-xs tracking-widest"
+            >
+              Continue
+              <CheckCircle2 className="w-4 h-4" />
+            </button>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div 
+          key="main"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="flex h-screen bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden selection:bg-[#FF0000]/30 w-full"
+        >
       {/* ReactPlayer for YouTube Imports */}
       <div 
         className="fixed top-0 left-0 w-[1px] h-[1px] opacity-[0.001] pointer-events-none -z-[100] bg-black overflow-hidden"
@@ -1397,7 +1485,7 @@ export default function App() {
               <div className="w-8 h-8 bg-[#FF0000] rounded-full flex items-center justify-center">
                 <div className="w-4 h-4 bg-black rounded-full"></div>
               </div>
-              AURAX
+              PATA VINNU
             </div>
             <p className="text-[8px] text-white uppercase tracking-[0.2em] font-black mt-1 ml-10">by Roshan.R.Soyam</p>
           </div>
@@ -1415,7 +1503,7 @@ export default function App() {
               <SidebarItem icon={<Share2 className={cn("w-3.5 h-3.5", showReferral ? "text-[#FF0000]" : "text-white/50")} />} label="Refer a Friend" active={showReferral} onClick={() => { setShowReferral(true); setShowProfile(false); setShowArtists(false); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setViewingSong(null); setShowDownloaded(false); setShowAiGenerator(false); }} />
               <SidebarItem icon={<Download className={cn("w-3.5 h-3.5", showDownloaded ? "text-[#FF0000]" : "text-white/50")} />} label="Downloaded" active={showDownloaded} onClick={() => { setShowDownloaded(true); setShowFavorites(false); setShowSearch(false); setSelectedPlaylistId(null); setViewingSong(null); setShowLyricsQueue(false); setShowAiGenerator(false); setShowArtists(false); setShowProfile(false); setShowReferral(false); }} />
               <SidebarItem icon={<ListMusic className={cn("w-4 h-4", showLyricsQueue ? "text-[#FF0000]" : "text-white/50")} />} label="Lyrics Queue" active={showLyricsQueue} onClick={() => { setShowLyricsQueue(true); setShowDownloaded(false); setShowFavorites(false); setShowSearch(false); setSelectedPlaylistId(null); setViewingSong(null); setShowProfile(false); setShowReferral(false); }} />
-              <SidebarItem icon={<Sparkles className={cn("w-4 h-4", showAuraX ? "text-[#FF0000]" : "text-white/50")} />} label="AuraX Assistant" active={showAuraX} onClick={() => { setShowAuraX(!showAuraX); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setShowDownloaded(false); setShowLyricsQueue(false); setShowProfile(false); setShowReferral(false); }} />
+              <SidebarItem icon={<Sparkles className={cn("w-4 h-4", showAuraX ? "text-[#FF0000]" : "text-white/50")} />} label="AI Assistant" active={showAuraX} onClick={() => { setShowAuraX(!showAuraX); setShowSearch(false); setShowFavorites(false); setSelectedPlaylistId(null); setShowDownloaded(false); setShowLyricsQueue(false); setShowProfile(false); setShowReferral(false); }} />
               <SidebarItem icon={<PlusSquare className="w-4 h-4 text-white/50" />} label="Import URL" active={false} onClick={() => setShowImportModal(true)} />
             </div>
           </div>
@@ -1519,7 +1607,7 @@ export default function App() {
                     <Sparkles className="w-3 h-3 text-[#FF0000]" />
                     <p className="text-[10px] font-black text-[#FF0000] uppercase tracking-widest">Premium Member</p>
                 </div>
-                <p className="text-[10px] text-white/60 font-bold leading-tight">AuraX Pro Enabled • High Fidelity Audio • Zero Interruption</p>
+                <p className="text-[10px] text-white/60 font-bold leading-tight">Pata Vinnu Pro Enabled • High Fidelity Audio • Zero Interruption</p>
             </div>
           </div>
         )}
@@ -1610,7 +1698,7 @@ export default function App() {
                         </div>
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <h1 className="text-4xl font-black italic tracking-tighter uppercase text-white">AuraX AI</h1>
+                                <h1 className="text-4xl font-black italic tracking-tighter uppercase text-white">Vinnu AI</h1>
                                 {isPremium && (
                                     <span className="px-2 py-0.5 bg-white/10 text-[#FF0000] text-[8px] font-black rounded-sm border border-[#FF0000]/30 tracking-widest">PRO</span>
                                 )}
@@ -1626,7 +1714,7 @@ export default function App() {
                             {auraXMessages.length === 0 && (
                               <div className="h-full flex flex-col items-center justify-center text-center opacity-20 py-20">
                                   <Sparkles className="w-12 h-12 mb-4" />
-                                  <p className="text-lg font-bold italic">AuraX is ready to assist</p>
+                                  <p className="text-lg font-bold italic">Vinnu AI is ready to assist</p>
                                   <p className="text-xs">Ask about music history, theory, or current tracks</p>
                               </div>
                             )}
@@ -1652,7 +1740,7 @@ export default function App() {
                                       <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1 h-1 rounded-full bg-white" />
                                       <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1 h-1 rounded-full bg-white" />
                                     </div>
-                                    <span>AuraX is thinking...</span>
+                                    <span>Vinnu is thinking...</span>
                                 </div>
                             )}
                         </div>
@@ -2228,7 +2316,7 @@ export default function App() {
                     <div className="space-y-8">
                       <div>
                         <h3 className="text-white font-black italic uppercase tracking-tight text-xl mb-2">Your Referral Code</h3>
-                        <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Share this code with your friends and they'll get a special badge when they join AuraX.</p>
+                        <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Share this code with your friends and they'll get a special badge when they join Pata Vinnu.</p>
                         
                         <div className="flex items-center gap-4">
                           <div className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-8 py-5 text-2xl font-black tracking-[0.5em] text-[#FF0000] flex items-center justify-center">
@@ -3254,7 +3342,9 @@ export default function App() {
           scrollbar-width: none;
         }
       `}</style>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
