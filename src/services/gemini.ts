@@ -1,9 +1,7 @@
-import Groq from 'groq-sdk';
-import { Song } from '../types';
+import { GoogleGenAI, Type } from "@google/genai";
+import { Song } from "../types";
 
-const groq = new Groq({
-  apiKey: import.meta.env.VITE_GROQ_API_KEY,
-});
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function getRecommendedSongs(preferences: string, history: Song[] = [], genre?: string, year?: string, userArtists: string[] = []): Promise<(Partial<Song> & { reason: string })[]> {
   const historyContext = history.length > 0 
@@ -20,63 +18,55 @@ export async function getRecommendedSongs(preferences: string, history: Song[] =
   ].filter(Boolean).join(", ");
 
   try {
-    const message = await groq.messages.create({
-      model: "mixtral-8x7b-32768",
-      max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: `Suggest 5 songs matching these criteria:
-Topic/Mood: "${preferences}"
-${artistContext}
-${filterContext ? `Filters: ${filterContext}` : ""}
-${historyContext}
-Use the history and favorite artists to refine the style but prioritize the specified preferences and filters.
-For each song, provide a short "reason" (e.g., "Classic ${genre} track from ${year}", "Matches your interest in lo-fi beats").
-Return ONLY a JSON array of objects with "title", "artist", "album", "reason", "genre", and "releaseDate". No other text.
-Example format: [{"title":"Song Name","artist":"Artist Name","album":"Album Name","reason":"Why recommended","genre":"Genre","releaseDate":"YYYY-MM-DD"}]`
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Suggest 5 songs matching these criteria:
+      Topic/Mood: "${preferences}"
+      ${artistContext}
+      ${filterContext ? `Filters: ${filterContext}` : ""}
+      ${historyContext}
+      Use the history and favorite artists to refine the style but prioritize the specified preferences and filters.
+      For each song, provide a short "reason" (e.g., "Classic ${genre} track from ${year}", "Matches your interest in lo-fi beats").
+      Return only a JSON array of objects with "title", "artist", "album", "reason", "genre", and "releaseDate".`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING },
+              artist: { type: Type.STRING },
+              album: { type: Type.STRING },
+              reason: { type: Type.STRING },
+              genre: { type: Type.STRING },
+              releaseDate: { type: Type.STRING }
+            },
+            required: ["title", "artist", "album", "reason", "genre", "releaseDate"]
+          }
         }
-      ]
+      }
     });
 
-    const content = message.content[0];
-    if (content.type === 'text') {
-      let jsonText = content.text;
-      const jsonMatch = jsonText.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        jsonText = jsonMatch[0];
-      }
-      return JSON.parse(jsonText);
-    }
-    return [];
+    return JSON.parse(response.text);
   } catch (error) {
-    console.error("Groq Error:", error);
+    console.error("Gemini Error:", error);
     return [];
   }
 }
 
 export async function getSongLyrics(title: string, artist: string): Promise<string> {
   try {
-    const message = await groq.messages.create({
-      model: "mixtral-8x7b-32768",
-      max_tokens: 2048,
-      messages: [
-        {
-          role: "user",
-          content: `Provide the lyrics for the song "${title}" by "${artist}". 
-Return only the lyrics text without any additional commentary. 
-If you can't find them, return "Lyrics not available for this song."`
-        }
-      ]
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Provide the lyrics for the song "${title}" by "${artist}". 
+      Return only the lyrics text without any additional commentary. 
+      If you can't find them, return "Lyrics not found available for this song."`,
     });
 
-    const content = message.content[0];
-    if (content.type === 'text') {
-      return content.text;
-    }
-    return "Error fetching lyrics.";
+    return response.text;
   } catch (error) {
-    console.error("Groq Lyrics Error:", error);
+    console.error("Gemini Lyrics Error:", error);
     return "Error fetching lyrics.";
   }
 }
@@ -97,70 +87,66 @@ export async function getAuraXChat(
     : "";
 
   const historyContext = songHistory.length > 0
-    ? `Recent listening history: ${songHistory.map(s => `${s.title} by ${s.artist}`).join(", ")}.`
+    ? `User's recent song history includes: ${songHistory.slice(0, 5).map(s => `"${s.title}" by ${s.artist}`).join(", ")}.`
     : "";
 
-  try {
-    const messages = [
-      ...chatHistory.map((msg) => ({
-        role: msg.role === 'auraX' ? 'assistant' as const : 'user' as const,
-        content: msg.text
-      })),
-      {
-        role: 'user' as const,
-        content: message
-      }
-    ];
+  // Convert my chatHistory to Gemini format
+  const contents = [
+    ...chatHistory.map(m => ({
+      role: m.role === 'auraX' ? 'model' : 'user',
+      parts: [{ text: m.text }]
+    })),
+    { role: 'user', parts: [{ text: message }] }
+  ];
 
-    const response = await groq.messages.create({
-      model: "mixtral-8x7b-32768",
-      max_tokens: 512,
-      messages: messages,
-      system: `You are Vinnu AI, a musical co-pilot for the Melodify music streaming app. You're helpful, friendly, and knowledgeable about music.
-${songContext}
-${artistContext}
-${historyContext}
-Respond with insights about music, recommendations, and engaging conversation. Keep responses concise and musical.`
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3.1-pro-preview",
+      contents: contents,
+      config: {
+        systemInstruction: `You are AuraX, an elite music assistant for the "AuraX" music app. 
+        You are sophisticated, knowledgeable, and passionate about music history, theory, and culture.
+        Context: ${songContext} ${artistContext} ${historyContext}
+        Keep your responses concise, engaging, and focused on the music. 
+        If asked for recommendations, use the context to provide high-quality suggestions.
+        You have access to Google Search for the latest music news, release dates, and artist information.`,
+        tools: [{ googleSearch: {} }]
+      }
     });
 
-    const content = response.content[0];
-    if (content.type === 'text') {
-      return content.text;
-    }
-    return "I'm thinking about that...";
+    return response.text;
   } catch (error) {
-    console.error("Groq Chat Error:", error);
-    return "I'm having trouble thinking right now. Try again!";
+    console.error("AuraX Chat Error:", error);
+    return "I'm having trouble connecting to my musical database right now. Let's keep the music playing!";
   }
 }
 
-export async function getSongMetadataFromUrl(url: string): Promise<{ title?: string; artist?: string }> {
+export async function getSongMetadataFromUrl(url: string): Promise<Partial<Song>> {
   try {
-    const message = await groq.messages.create({
-      model: "mixtral-8x7b-32768",
-      max_tokens: 256,
-      messages: [
-        {
-          role: "user",
-          content: `Extract the song title and artist from this YouTube URL: ${url}
-Look at typical YouTube URL formats and patterns. If you can determine the song title and artist, return JSON: {"title":"Song Title","artist":"Artist Name"}
-If you cannot determine, return: {"title":"","artist":""}
-Return ONLY valid JSON, no other text.`
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Extract song metadata (Title, Artist, Album, Genre, Year) from this YouTube URL: ${url}. 
+      If you can't be certain, make an educated guess based on common video titles for this song.
+      Return only as a JSON object with keys: "title", "artist", "album", "genre", "releaseDate".`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING },
+            artist: { type: Type.STRING },
+            album: { type: Type.STRING },
+            genre: { type: Type.STRING },
+            releaseDate: { type: Type.STRING }
+          },
+          required: ["title", "artist", "album", "genre", "releaseDate"]
         }
-      ]
+      }
     });
 
-    const content = message.content[0];
-    if (content.type === 'text') {
-      try {
-        return JSON.parse(content.text);
-      } catch {
-        return {};
-      }
-    }
-    return {};
+    return JSON.parse(response.text);
   } catch (error) {
-    console.error("Groq Metadata Error:", error);
+    console.error("Gemini Metadata Error:", error);
     return {};
   }
 }
